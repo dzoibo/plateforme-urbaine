@@ -539,7 +539,7 @@
           });
 
 
-          map.addSource('commune_geojson', {
+          map.addSource('com mune_geojson', {
               type: 'geojson',
               data: 'communes_communaute_cameroun.geojson',
               'generateId': true //This ensures that all features have unique IDs

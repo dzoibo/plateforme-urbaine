@@ -1,0 +1,268 @@
+/* Write your global styles here, in PostCSS syntax */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    font-family: 'Poppins', sans-serif;
+}
+
+h1,
+h2,
+h3,
+.poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.poppins-thin {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.poppins-extralight {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.poppins-light {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.poppins-regular {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.poppins-medium {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.poppins-semibold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.poppins-bold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.poppins-extrabold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.poppins-black {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.poppins-thin-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 100;
+    font-style: italic;
+}
+
+.poppins-extralight-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 200;
+    font-style: italic;
+}
+
+.poppins-light-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.poppins-regular-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.poppins-medium-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.poppins-semibold-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.poppins-bold-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.poppins-extrabold-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+}
+
+.poppins-black-italic {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+}
+
+.maplibregl-map {
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.expand-map2 {
+    width: 100%;
+    height: 100%;
+    position: absolute !important;
+}
+
+.group,
+::before,
+::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+}
+
+
+/* Styles pour les boutons lorsqu'ils sont actifs (clic) */
+
+.maplibregl-ctrl-icon:active {
+    background-color: #b5bfd9;
+    /* Nouvelle couleur de fond lorsqu'ils sont actifs */
+}
+
+#sidebar button {
+    height: 100%;
+    /* Définissez la hauteur des boutons à l'intérieur de #sidebar à 100% */
+}
+
+#sidebar li>button.active {
+    background-color: #00862b14;
+    color: rgb(1, 1, 1);
+}
+
+#sidebar li>button:hover {
+    background-color: #00862b14 !important;
+    color: #020202;
+}
+
+#sidebar button:focus {
+    /* Ajoutez ici les styles CSS personnalisés */
+    border-width: 0px !important;
+    outline: none;
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0 + 0) !important;
+}
+
+.div-wrapper button {
+    height: 100%;
+    /* Définissez la hauteur des boutons à l'intérieur de #sidebar à 100% */
+}
+
+.div-wrapper li>button.active {
+    background-color: #00862b14;
+    color: black;
+}
+
+.div-wrapper li>button:hover {
+    background-color: #00862b14 !important;
+    color: #020202;
+}
+
+.div-wrapper button:focus {
+    /* Ajoutez ici les styles CSS personnalisés */
+    border-width: 0px !important;
+    outline: none;
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0 + 0) !important;
+}
+
+.navbar {
+    z-index: 100;
+    position: relative;
+    display: none;
+}
+
+.navbar div {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    justify-content: unset !important;
+}
+
+.rotate-90 {
+    transform: rotate(90deg);
+}
+
+.group:first-child .group-first\:rounded-s-lg {
+    border-start-start-radius: 0rem !important;
+    border-end-start-radius: 0rem !important;
+}
+
+.group:last-child .group-last\:rounded-e-lg {
+    border-start-end-radius: 0rem !important;
+    border-end-end-radius: 0rem !important;
+}
+
+div [role="tabpanel"] {
+    /* Réinitialisez ou annulez les styles indésirables ici */
+    background-color: initial !important;
+    /* Annulez la couleur de fond indésirable */
+    border: initial !important;
+    /* Annulez les bordures indésirables */
+    padding: initial !important;
+    /* Réinitialisez le rembourrage si nécessaire */
+    /* Styles spécifiques pour les éléments avec un rôle "tabpanel" à l'intérieur de la div parente */
+}
+
+.focus\:ring-gray-400:focus {
+    --tw-ring-opacity: 1;
+    --tw-ring-color: rgb(156 163 175 / var(--tw-ring-opacity));
+}
+
+.focus\:ring-2:focus {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 0 var(--tw-ring-offset-color) !important;
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px) var(--tw-ring-color) !important;
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+}
+
+:focus {
+    outline: -webkit-focus-ring-color auto 0px !important;
+}
+
+ .titleForInfo {
+     text-align: center;
+ }
+ 
+.titleForInfo h1 {
+     font-size: clamp(18px, 1vw, 24px);
+     font-weight: bold;
+     margin-bottom: 10px;
+ }
+ /* Style pour le sous-titre (Liste des projets) */
+ 
+.titleForInfo h2 {
+     font-size: 18px;
+     font-weight: normal;
+ }
+ 
