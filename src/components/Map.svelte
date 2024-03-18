@@ -112,6 +112,9 @@
     [-6.81, -6.492371],
     [31.841812, 18.227069]
   ];
+  let previousZoom=0;
+  let layer='reg';
+  let lastLayerUpdateTime='0';
 
   let geojsonProjetLineCentroid;
   let geojsonProjetPolygonCentroid;
@@ -364,6 +367,49 @@
     };
   }
 
+  /**
+   * when a commune is selected, we need to remove zoom before being able to toggle the layer
+  */
+  function clearFilterBeforeToggleZoom(layer){
+    if(getbbox!==[]){
+      if(theme==='icsp'){
+        storeIcspCommune.set(false);
+      }else if (theme==='accord'){
+        storeAccordsBeneficiaire.set(false);
+      }
+      storeCommune.set('');
+      updateGetBox('');
+      setTimeout(() => {
+        toggleLayer(layer);
+      }, 1000);
+    }else{
+       toggleLayer(layer);
+    }
+  } 
+
+   //automalticaly change the scale
+   function toggleLayerOnZoom(){
+    const currentTime = Date.now();
+    let tempLayer=layer;
+    if(currentZoom>previousZoom){
+      if(currentZoom>=5.75 && !showCom){
+        tempLayer='com';
+      }
+    }else{
+      if(currentZoom<5.75 && !showReg){
+        tempLayer='reg';
+      }
+    }
+    if(currentTime-lastLayerUpdateTime<1000 && layer===tempLayer){
+      return;
+    }else{
+      layer=tempLayer;
+      lastLayerUpdateTime=Date.now();
+      toggleLayer(layer);
+      previousZoom=currentZoom;
+    }
+    
+  }
   function toggleLayer(layer) {
     showReg = layer === 'reg' ? true : false;
     showDep = layer === 'dep' ? true : false;
@@ -410,9 +456,9 @@
       <TabItem open class="w-full " id="projets">
         <div slot="title" class="titleForInfo">
           {#if showReg}
-            <h1 class="mt-2">Région : {clickedLayerInfo.detail.features[0].properties.name}</h1>
+            <h1 class="mt-2">Région : <span class="uppercase">{clickedLayerInfo.detail.features[0].properties.name}</span></h1>
           {:else}
-            <h1>Commune: {clickedLayerInfo.detail.features[0].properties.name}</h1>
+            <h1>Commune: <span class="uppercase">{clickedLayerInfo.detail.features[0].properties.name}</span></h1>
           {/if}  
           <h2>Liste des projets</h2>
         </div>
@@ -486,6 +532,7 @@
     on:zoomend={({ detail: { map } }) => (currentZoom = map.getZoom())}
     bind:map
     bind:loaded
+    on:zoom={()=>toggleLayerOnZoom()}
     class="w-screen"
   >
     <NavigationControl position="top-right" />
