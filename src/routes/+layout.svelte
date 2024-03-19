@@ -1,14 +1,12 @@
 <script lang="ts">
   import '../app.postcss';
   import { page } from '$app/stores';
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
   import Main from '../components/Map.svelte';
   // Autre fichier, par exemple, votre composant ou page
   import {
-    uniqueValues,
     findMinMax,
     jsonToItem,
-    removeDuplicatesByAttribute
   } from '../../shared/utilitaire';
   import SearchBar from '../components/SearchBar.svelte';
   import {
@@ -96,50 +94,60 @@
     {
       key: "Adamaoua",
       id: "AD",
+      checked:false,
       id_REGION: "AD"
     },
     {
       key: "Centre",
+      checked:false,
       id: "CE",
       id_REGION: "CE"
     },
     {
       key: "Est",
+      checked:false,
       id: "ES",
       id_REGION: "ES"
     },
     {
       key: "Extrême-Nord",
+      checked:false,
       id: "EN",
       id_REGION: "EN"
     },
     {
       key: "Littoral",
+      checked:false,
       id: "LI",
       id_REGION: "LI"
     },
     {
       key: "Nord",
+      checked:false,
       id: "NO",
       id_REGION: "NO"
     },
     {
       key: "Nord-ouest",
+      checked:false,
       id: "NW",
       id_REGION: "NW"
     },
     {
       key: "Ouest",
+      checked:false,
       id: "OU",
       id_REGION: "OU"
     },
     {
       key: "Sud",
+      checked:false,
       id: "SU",
       id_REGION: "SU"
     },
     {
       key: "Sud-ouest",
+      checked:false,
       id: "SW",
       id_REGION: "SW"
     }
@@ -239,7 +247,9 @@
 
   let dropdownStyle = ' border border-red-500 overflow-y-auto py-1 h-48';
   let listItemStyle = 'rounded w-56 pl-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-600';
-
+  let filterIndicatorStyle='w-2.5 h-2.5 mb-2 rounded-[50%] bg-[#234099]'
+  let closeBtnStyle = 'absolute focus:outline-none whitespace-normal focus:ring-2 p-1.5  hover:bg-red-500 ms-auto inline-flex items-center justify-center w-6 !h-6 font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2';
+  let selectedItemStyle="inline-flex relative px-5 py-2.5 m-1 text-sm font-medium text-center text-sm text-white bg-[#0095DC] rounded-lg";
   let appuiBeneficiairesItems: any[] = [];
   let appuiInstitutionnelItems: any[] = [];
   let appuiBailleursItems: any[] = [];
@@ -395,7 +405,6 @@
     dropdownSelectionInstitutionIndicateur.indicateur = institutionIndicateur;
     dropdownSelectionBailleurIndicateur.indicateur = bailleurIndicateur;
     dropdownSelectionBeneficiaireIndicateur.indicateur = beneficiaireIndicateur;
-    console.log(valeursRegion);
   }
   
   function getCommuneInfo(ids){
@@ -448,31 +457,52 @@
     unique: any[],
   ) {
     checkedOptions.checked = !checkedOptions.checked;
+    updateSelectedWords(array, unique); // Mettre à jour les mots sélectionnés
+    setTimeout(() => {
+      updateFilterIndicator(array.indicateur,unique)
+    }, 12);
+  }
 
-    updateSelectedWords(array, unique, section); // Mettre à jour les mots sélectionnés
+  function toggleAllCheckbox(
+   filter: string
+  ){
+    let checkedAllfilter=false;
+    filterCheckedAll[filter] = !filterCheckedAll[filter];
+    checkedAllfilter=filterCheckedAll[filter] ;
+     /**
+      * since the flow-bite checkbox component is wrapping the checkbox itself inside a label,
+      * we have to target the input inside the checkbox before checking it and dispach the event
+     */
+     let checkboxes= document.querySelectorAll("."+filter+"-checkbox input");
+
+     checkboxes.forEach(function(checkbox: any) {
+      // this condition is to make sure that we check and trigger the event only if the item is not yet checked or we are unchecking
+      if(checkbox.checked!== true || !checkedAllfilter){
+        checkbox.checked = checkedAllfilter;
+        checkbox.dispatchEvent(new Event('change'));
+      }
+    });
+    setTimeout(() => {// this is to restore the value changed in the function updateFilterIndicator()
+        filterCheckedAll[filter] =checkedAllfilter;
+    }, 12);
   }
 
   function updateSelectedWords(
     array: { indicateur: string; data: never[] } | undefined,
     unique: any[],
-    section: string,
     option = false
   ) {
     update = true;
     //@ts-ignore
     setTimeout(() => {
-      //Todo Automatisation pour prendre toutes les données des listes déroulantes.
       array.data = unique.filter((unique) => unique.checked).map((unique) => unique.key);
-      // Vérifiez si un objet avec le même indicateur existe déjà dans arrayAllIndicateurs
-      const existingIndicateurIndex = arrayAllIndicateurs[section].findIndex(
+      const existingIndicateurIndex = arrayAllIndicateurs.findIndex(
         (item) => item.indicateur === array.indicateur
       );
       if (existingIndicateurIndex !== -1) {
-        // Mettez à jour 'data' de l'objet existant
-        arrayAllIndicateurs[section][existingIndicateurIndex].data = array.data;
+        arrayAllIndicateurs[existingIndicateurIndex].data = array.data;
       } else {
-        // Ajoutez un nouvel objet à arrayAllIndicateurs
-        arrayAllIndicateurs[section].push(array);
+        arrayAllIndicateurs.push(array);
       }
 
       update = false;
@@ -481,11 +511,21 @@
     return array;
   }
 
+  function updateFilterIndicator(indicateur: string,unique){
+    const indicateurIndex = arrayAllIndicateurs.findIndex((item:any)=>item.indicateur===indicateur)
+    const arrayLength=arrayAllIndicateurs[indicateurIndex].data.length;
+    let allCkeckboxes:any = document.querySelector("."+indicateur+"-all-checkbox");
+    if (allCkeckboxes) {
+      allCkeckboxes.checked = unique.length===arrayLength;
+    }
+    filterCheckedAll.region=unique.length===arrayLength;
+    filterIndicators[indicateur]=arrayLength>0;
+  }
+
   function closeDiv(
     wordToRemove: any,
     array: { indicateur: string; data: never[] } | undefined,
     unique,
-    section
   ) {
     // Trouver l'objet correspondant dans valeursSourcefinancement
     const word = unique.find((value) => value.key === wordToRemove);
@@ -494,7 +534,13 @@
       word.checked = false;
     }
 
-    updateSelectedWords(array, unique, section); // Mettre à jour les mots sélectionnés
+    updateSelectedWords(array, unique); // Mettre à jour les mots sélectionnés
+    
+    if(array!==undefined){
+      setTimeout(() => {
+        updateFilterIndicator(array.indicateur,unique)
+      }, 12);
+    }
   }
 
   $: {
@@ -553,20 +599,20 @@
       item.toLowerCase().match(value.toLowerCase())
     );
     switch(filter) {
-      case 'Region':
+      case regionIndicateur:
         regionSearchResult=searchResult
       break;
-      case 'Nom':
+      case projetIndicateur:
         projetSearchResult=searchResult
       break;
-      case 'Institution':
+      case institutionIndicateur:
         institutionSearchResult=searchResult
       break;
-      case 'Bailleur':
-        bailleurIndicateur=searchResult;
+      case bailleurIndicateur:
+        bailleurSearchResult=searchResult;
       break;
-      case 'Ville/Bénéficiaire(s)':
-        beneficiaireIndicateur=searchResult;
+      case beneficiaireIndicateur:
+        beneficiaireSearchResult=searchResult;
       break;
     } 
   };
@@ -578,24 +624,19 @@
 
   // Fonction pour réinitialiser les filtres et vider les dropdowns
   function resetFilters() {
-    // Réinitialiser les filtres
-    arrayAllIndicateurs = [];
-    // Vider les dropdowns en réinitialisant les valeurs
-    valeursAttribution.forEach((attribution) => (attribution.checked = false));
-    valeursSecteur.forEach((secteur) => (secteur.checked = false));
-    valeursDomaine.forEach((domaine) => (domaine.checked = false));
-    valeursBeneficiaire.forEach((beneficiaire) => (beneficiaire.checked = false));
-    valeursBeneficiaire2.forEach((beneficiaire) => (beneficiaire.checked = false));
-    valeursSourcefinancement.forEach((financement) => (financement.checked = false));
-    valeursPartenaires.forEach((partenaire) => (partenaire.checked = false));
-    valeursDepartement.forEach((departement) => (departement.checked = false));
-    valeursRegion.forEach((region) => (region.checked = false));
-    valeursAvancement.forEach((avancement) => (avancement.checked = false));
+    arrayAllIndicateurs.forEach((item) => (item.checked = false));
+    valeursProjet.forEach((item) => (item.checked = false));
+    valeursTheme.forEach((item) => (item.checked = false));
+    valeursInstitution.forEach((item) => (item.checked = false));
+    valeursBailleur.forEach((item) => (item.checked = false));
+    valeursBeneficiaire.forEach((item) => (item.checked = false));
+    valeursRegion.forEach((item) => (item.checked = false));
+    clearIndicator();
   }
 
   function clearIndicator(){
     filterIndicators.region=false;
-    filterIndicators.projet=false;
+    filterIndicators.nom=false;
     filterIndicators.beneficiaire=false;
     filterIndicators.theme=false;
     filterIndicators.bailleur=false;
@@ -682,8 +723,14 @@
               <SidebarDropdownWrapper  label="Selon un projet">
                 <svelte:fragment slot="icon">
                   <BuildingOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  {#if filterIndicators.nom && !filterCheckedAll.nom}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
                 </svelte:fragment>
                 <div class="w-full flex justify-center">
+                  {#if filterIndicators.nom && !filterCheckedAll.nom}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
                   <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]">
                     Sélectionner un projet
                     <ChevronDownSolid class="w-3 h-3 ms-2 text-white dark:text-white"/>
@@ -715,6 +762,28 @@
                     {/if}
                   {/each}
                 </Dropdown>
+                <div class="px-2 pt-1 pb-2">
+                  {#each arrayAllIndicateurs as indicateur}
+                    {#if indicateur.indicateur === dropdownSelectionProjetIndicateur.indicateur}
+                      {#each indicateur.data as word (word)}
+                        <div 
+                          class={selectedItemStyle}
+                        >
+                          {word}
+                          <CloseButton
+                            on:click={() =>
+                              closeDiv(
+                                word,
+                                dropdownSelectionProjetIndicateur,
+                                valeursProjet,
+                              )}
+                            class={closeBtnStyle}
+                          />
+                        </div>
+                      {/each}
+                    {/if}
+                  {/each}
+                </div>
               </SidebarDropdownWrapper>
             </SidebarGroup>
 
@@ -722,6 +791,9 @@
               <SidebarDropdownWrapper  label="Selon un thème">
                 <svelte:fragment slot="icon">
                   <UsersGroupOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  {#if filterIndicators.theme && !filterCheckedAll.theme}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
                 </svelte:fragment>
                 <div class="w-full flex justify-center">
                   <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
@@ -740,6 +812,17 @@
                       }
                     />
                   </div>
+                  {#if themeInputValue.length===0}
+                    <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <Checkbox
+                        class={themeIndicateur+"-all-checkbox"}
+                        checked={filterCheckedAll.theme}
+                        on:change={() =>
+                          toggleAllCheckbox(themeIndicateur)
+                        }>Tout sélectionner</Checkbox
+                      >
+                    </li>
+                  {/if}
                   {#each valeursTheme as theme}
                     {#if filterList(theme,themeSearchResult)}
                       <li class={listItemStyle}>
@@ -756,87 +839,28 @@
                     {/if}
                   {/each}
                 </Dropdown>
-              </SidebarDropdownWrapper>
-            </SidebarGroup>
-
-            <SidebarGroup class={cardForSideBar}>
-              <SidebarDropdownWrapper  label="Selon une institution">
-                <svelte:fragment slot="icon">
-                  <LandmarkOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
-                </svelte:fragment>
-                <div class="w-full flex justify-center">
-                  <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
-                    >Sélectionner des institutions<ChevronDownSolid
-                      class="w-3 h-3 ms-2 text-white dark:text-white"
-                    /></Button
-                  >
-                </div>
-                <Dropdown class={dropdownStyle}>
-                  <div slot="header" class="p-3">
-                    <SearchBar
-                      bind:inputValue={institutionInputValue}
-                      on:input={
-                        (event)=>handleInput(event,jsonToItem({ valeursInstitution },'valeursInstitution'),institutionIndicateur)
-                      }
-                    />
-                  </div>
-                  {#each valeursInstitution as institution}
-                    {#if filterList(institution,institutionSearchResult)}
-                      <li class={listItemStyle}>
-                        <Checkbox class={institutionIndicateur+"-checkbox"}
-                          checked={institution.checked}
-                          on:change={() =>
-                            toggleCheckbox(
-                              institution,
-                              dropdownSelectionInstitutionIndicateur,
-                              valeursInstitution,
-                            )}>{institution.key}</Checkbox
+                <div class="px-2 pt-1 pb-2">
+                  {#each arrayAllIndicateurs as indicateur}
+                    {#if indicateur.indicateur === dropdownSelectionThemeIndicateur.indicateur}
+                      {#each indicateur.data as word (word)}
+                        <div 
+                          class={selectedItemStyle}
                         >
-                      </li>
+                          {word}
+                          <CloseButton
+                            on:click={() =>
+                              closeDiv(
+                                word,
+                                dropdownSelectionThemeIndicateur,
+                                valeursTheme,
+                              )}
+                            class={closeBtnStyle}
+                          />
+                        </div>
+                      {/each}
                     {/if}
                   {/each}
-                </Dropdown>
-              </SidebarDropdownWrapper>
-            </SidebarGroup>
-
-            <SidebarGroup class={cardForSideBar}>
-              <SidebarDropdownWrapper  label="Selon un bailleur">
-                <svelte:fragment slot="icon">
-                  <CashOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
-                </svelte:fragment>
-                <div class="w-full flex justify-center">
-                  <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
-                    >Sélectionner des bailleurs<ChevronDownSolid
-                      class="w-3 h-3 ms-2 text-white dark:text-white"
-                    /></Button
-                  >
                 </div>
-                
-                <Dropdown class={dropdownStyle}>
-                  <div slot="header" class="p-3">
-                    <SearchBar
-                      bind:inputValue={bailleurInputValue}
-                      on:input={
-                        (event)=>handleInput(event,jsonToItem({ valeursBailleur },'valeursBailleur'),bailleurIndicateur)
-                      }
-                    />
-                  </div>
-                  {#each valeursBailleur as bailleur}
-                    {#if filterList(bailleur,bailleurSearchResult)}
-                      <li class={listItemStyle}>
-                        <Checkbox class={bailleurIndicateur+"-checkbox"}
-                          checked={bailleur.checked}
-                          on:change={() =>
-                            toggleCheckbox(
-                              bailleur,
-                              dropdownSelectionBailleurIndicateur,
-                              valeursBailleur,
-                            )}>{bailleur.key}</Checkbox
-                        >
-                      </li>
-                    {/if}
-                  {/each}
-                </Dropdown>
               </SidebarDropdownWrapper>
             </SidebarGroup>
 
@@ -844,6 +868,9 @@
               <SidebarDropdownWrapper  label="Selon un bénéficiaire">
                 <svelte:fragment slot="icon">
                   <UsersGroupOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  {#if filterIndicators.beneficiaire && !filterCheckedAll.beneficiaire}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
                 </svelte:fragment>
                 <div class="w-full flex justify-center">
                   <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
@@ -862,6 +889,17 @@
                       }
                     />
                   </div>
+                  {#if beneficiaireInputValue.length===0}
+                    <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <Checkbox
+                        class={beneficiaireIndicateur+"-all-checkbox"}
+                        checked={filterCheckedAll.beneficiaire}
+                        on:change={() =>
+                          toggleAllCheckbox(beneficiaireIndicateur)
+                        }>Tout sélectionner</Checkbox
+                      >
+                    </li>
+                  {/if}
                   {#each valeursBeneficiaire as beneficiaire}
                     {#if filterList(beneficiaire,beneficiaireSearchResult)}
                       <li class={listItemStyle}>
@@ -878,6 +916,181 @@
                     {/if}
                   {/each}
                 </Dropdown>
+                <div class="px-2 pt-1 pb-2">
+                  {#each arrayAllIndicateurs as indicateur}
+                    {#if indicateur.indicateur === dropdownSelectionBeneficiaireIndicateur.indicateur}
+                      {#each indicateur.data as word (word)}
+                        <div 
+                          class={selectedItemStyle}
+                        >
+                          {word}
+                          <CloseButton
+                            on:click={() =>
+                              closeDiv(
+                                word,
+                                dropdownSelectionBeneficiaireIndicateur,
+                                valeursBeneficiaire,
+                              )}
+                            class={closeBtnStyle}
+                          />
+                        </div>
+                      {/each}
+                    {/if}
+                  {/each}
+                </div>
+              </SidebarDropdownWrapper>
+            </SidebarGroup>
+
+            <SidebarGroup class={cardForSideBar}>
+              <SidebarDropdownWrapper  label="Selon une institution">
+                <svelte:fragment slot="icon">
+                  <LandmarkOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  {#if filterIndicators.institution && !filterCheckedAll.institution}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
+                </svelte:fragment>
+                <div class="w-full flex justify-center">
+                  <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
+                    >Sélectionner des institutions<ChevronDownSolid
+                      class="w-3 h-3 ms-2 text-white dark:text-white"
+                    /></Button
+                  >
+                </div>
+                <Dropdown class={dropdownStyle}>
+                  <div slot="header" class="p-3">
+                    <SearchBar
+                      bind:inputValue={institutionInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursInstitution },'valeursInstitution'),institutionIndicateur)
+                      }
+                    />
+                  </div>
+                  {#if institutionInputValue.length===0}
+                    <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <Checkbox
+                        class={institutionIndicateur+"-all-checkbox"}
+                        checked={filterCheckedAll.theme}
+                        on:change={() =>
+                          toggleAllCheckbox(institutionIndicateur)
+                        }>Tout sélectionner</Checkbox
+                      >
+                    </li>
+                  {/if}
+                  {#each valeursInstitution as institution}
+                    {#if filterList(institution,institutionSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={institutionIndicateur+"-checkbox"}
+                          checked={institution.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              institution,
+                              dropdownSelectionInstitutionIndicateur,
+                              valeursInstitution,
+                            )}>{institution.key}</Checkbox
+                        >
+                      </li>
+                    {/if}
+                  {/each}
+                  <div class="px-2 pt-1 pb-2">
+                    {#each arrayAllIndicateurs as indicateur}
+                      {#if indicateur.indicateur === dropdownSelectionInstitutionIndicateur.indicateur}
+                        {#each indicateur.data as word (word)}
+                          <div 
+                            class={selectedItemStyle}
+                          >
+                            {word}
+                            <CloseButton
+                              on:click={() =>
+                                closeDiv(
+                                  word,
+                                  dropdownSelectionInstitutionIndicateur,
+                                  valeursInstitution,
+                                )}
+                              class={closeBtnStyle}
+                            />
+                          </div>
+                        {/each}
+                      {/if}
+                    {/each}
+                  </div>
+                </Dropdown>
+              </SidebarDropdownWrapper>
+            </SidebarGroup>
+
+            <SidebarGroup class={cardForSideBar}>
+              <SidebarDropdownWrapper  label="Selon un bailleur">
+                <svelte:fragment slot="icon">
+                  <CashOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  {#if filterIndicators.bailleur && !filterCheckedAll.bailleur}
+                    <div class={filterIndicatorStyle} ></div>
+                  {/if}
+                </svelte:fragment>
+                <div class="w-full flex justify-center">
+                  <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
+                    >Sélectionner des bailleurs<ChevronDownSolid
+                      class="w-3 h-3 ms-2 text-white dark:text-white"
+                    /></Button
+                  >
+                </div>
+                
+                <Dropdown class={dropdownStyle}>
+                  <div slot="header" class="p-3">
+                    <SearchBar
+                      bind:inputValue={bailleurInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursBailleur },'valeursBailleur'),bailleurIndicateur)
+                      }
+                    />
+                  </div>
+                  {#if bailleurInputValue.length===0}
+                    <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                      <Checkbox
+                        class={bailleurIndicateur+"-all-checkbox"}
+                        checked={filterCheckedAll.bailleur}
+                        on:change={() =>
+                          toggleAllCheckbox(bailleurIndicateur)
+                        }>Tout sélectionner</Checkbox
+                      >
+                    </li>
+                  {/if}
+                  {#each valeursBailleur as bailleur}
+                    {#if filterList(bailleur,bailleurSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={bailleurIndicateur+"-checkbox"}
+                          checked={bailleur.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              bailleur,
+                              dropdownSelectionBailleurIndicateur,
+                              valeursBailleur,
+                            )}>{bailleur.key}</Checkbox
+                        >
+                      </li>
+                    {/if}
+                  {/each}
+                </Dropdown>
+                <div class="px-2 pt-1 pb-2">
+                  {#each arrayAllIndicateurs as indicateur}
+                    {#if indicateur.indicateur === dropdownSelectionBailleurIndicateur.indicateur}
+                      {#each indicateur.data as word (word)}
+                        <div 
+                          class={selectedItemStyle}
+                        >
+                          {word}
+                          <CloseButton
+                            on:click={() =>
+                              closeDiv(
+                                word,
+                                dropdownSelectionBailleurIndicateur,
+                                valeursBailleur,
+                              )}
+                            class={closeBtnStyle}
+                          />
+                        </div>
+                      {/each}
+                    {/if}
+                  {/each}
+                </div>
               </SidebarDropdownWrapper>
             </SidebarGroup>
             
@@ -906,8 +1119,8 @@
   style="margin-left:{marginRight}rem;height: calc(100vh - {navbarHeight}px);"
 >
   <main id="main" class=" maplibregl-map">
-      {#if !loadingData}
-        <slot {showFinancement} {showICSP} />
-      {/if}
+    {#if !loadingData}
+      <slot {showFinancement} {showICSP} />
+    {/if}
   </main>
 </div>
