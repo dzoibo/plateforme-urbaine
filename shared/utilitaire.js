@@ -14,15 +14,12 @@ export function uniqueValues(tableau, attribut, option = false, id){
         const valeurID = objet[id];
         const id_COMMUNE = objet['id_COMMUNE'];
         const id_REGION = objet['id_REGION'];
-        const id_DEPARTEMENT = objet['id_DEPARTEMENT'];
-
         if (valeur !== null && !seenValues[valeur]) {
             const item = { 'key': valeur, checked: false, 'id': valeurID };
 
             if (option && id_COMMUNE) {
                 item['id_COMMUNE'] = id_COMMUNE;
                 item['id_REGION'] = id_REGION;
-                item['id_DEPARTEMENT'] = id_DEPARTEMENT;
             }
 
             result.push(item);

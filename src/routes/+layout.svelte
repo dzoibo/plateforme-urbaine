@@ -14,12 +14,9 @@
   import {
     dataStore,
     rangeValue,
-    buttonICSP,
     rangeValueAccord,
-    storeIndicateur5,
     storeIndicateur,
     heightNavBar,
-    storeIndicateurICSP
   } from '../../shared/store.js';
   import { fetchData } from '../../shared/dataService.js';
 
@@ -76,7 +73,6 @@
   let component;
   let props;
   let backdrop: boolean = false;
-
   let drawerHidden = true;
   let activateClickOutside = true;
 
@@ -86,24 +82,72 @@
   let marginRight = sidebarWidth; // Valeur initiale de la marge droite
 
   let dataArr: any[] = [];
-  let mandatData: any[] = [];
-  let communeData: any[] = [];
-  let uniqueBeneficiaireForIDFetch: any[] = [];
+  let communeData: never[] = [];
+  let projetData: never[]=[];
+
   let icspData: any[] = [];
-  let valeursAttribution: any[] = [];
-  let valeursDomaine: any[] = [];
-  let valeursSecteur: any[] = [];
+
+  let valeursProjet: any[] = [];
+  let valeursTheme: any[] = [];
+  let valeursInstitution: any[] = [];
+  let valeursBailleur: any[] = [];
   let valeursBeneficiaire: any[] = [];
-  let valeursBeneficiaire2: any[] = [];
-  let valeursSourcefinancement: any[] = [];
-  let valeursDepartement: any[] = [];
-  let valeursRegion: any[] = [];
-  let valeursAvancement: any[] = [];
-  let valeursPartenaires: any[] = [];
-  let arrayAllIndicateurs = { accord: [], icsp: [] };
-  let arrayAllIndicateursICSP: any[] = [];
+  let valeursRegion=[
+    {
+      key: "Adamaoua",
+      id: "AD",
+      id_REGION: "AD"
+    },
+    {
+      key: "Centre",
+      id: "CE",
+      id_REGION: "CE"
+    },
+    {
+      key: "Est",
+      id: "ES",
+      id_REGION: "ES"
+    },
+    {
+      key: "Extrême-Nord",
+      id: "EN",
+      id_REGION: "EN"
+    },
+    {
+      key: "Littoral",
+      id: "LI",
+      id_REGION: "LI"
+    },
+    {
+      key: "Nord",
+      id: "NO",
+      id_REGION: "NO"
+    },
+    {
+      key: "Nord-ouest",
+      id: "NW",
+      id_REGION: "NW"
+    },
+    {
+      key: "Ouest",
+      id: "OU",
+      id_REGION: "OU"
+    },
+    {
+      key: "Sud",
+      id: "SU",
+      id_REGION: "SU"
+    },
+    {
+      key: "Sud-ouest",
+      id: "SW",
+      id_REGION: "SW"
+    }
+  ]
+
+
+  let arrayAllIndicateurs: any[] = [];
   let loadingData = true;
-  let isItCoop = '';
   let activeUrl;
   let showFinancement = false;
   let showICSP = true;
@@ -138,46 +182,73 @@
   let maxSliderICSP = minMaxYearICSP.max;
 
   let checkedOptions: { [key: string]: boolean } = {};
-  //Liste déroulante et search bar
-  //accord
-  let inputValue = '';
-  let indicateur5 = 'Source_financement';
-  let indicateur1 = "Instance d'attribution";
-  let indicateur2 = 'Secteurs';
-  let indicateur3 = 'Domaines';
-  let indicateur4 = 'Bénéficiaire';
-  let indicateur8 = 'Département';
-  let indicateur9 = 'Région';
-  let indicateur6 = 'Partenaires';
-  let indicateur10 = 'Niveau d’avancement';
+  
+  let filterIndicators={
+    theme: false,
+    nom: false,
+    region: false,
+    bailleur: false,
+    beneficiaire: false,
+    institution: false
+  };
 
-  //ICSP
-  let indicateur7 = 'COMMUNE';
+  let filterCheckedAll={
+    theme: false,
+    nom: false,
+    region: false,
+    bailleur: false,
+    beneficiaire: false,
+    institution: false
+  }
+  
+
+  let projetInputValue = '';
+  let themeInputValue = '';
+  let institutionInputValue = '';
+  let bailleurInputValue = '';
+  let beneficiaireInputValue = '';
+  let regionInputValue ='';
+
+  let projetSearchResult: any[] = [];
+  let themeSearchResult: any[] = [];
+  let institutionSearchResult: any[] = [];
+  let bailleurSearchResult: any[] = [];
+  let beneficiaireSearchResult: any[] = [];
+  let regionSearchResult: any[] =[];
+
+  let regionIndicateur = 'region';
+  let projetIndicateur = 'nom';
+  let themeIndicateur= 'theme';
+  let institutionIndicateur= 'institution';
+  let bailleurIndicateur= 'bailleur';
+  let beneficiaireIndicateur= 'beneficiaire';
+
+ 
   let filteredItems: any[] = [];
-  //ICSP
-  let dropdownSelectionIndicateur7 = { indicateur: '', data: [] };
-  //Accord
-  let dropdownSelectionIndicateur10 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur9 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur8 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur6 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur5 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur4 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur3 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur2 = { indicateur: '', data: [] };
-  let dropdownSelectionIndicateur1 = { indicateur: '', data: [] };
-  let dropdownSelectionsAll: any[] = [];
+  
+  let dropdownSelectionRegionIndicateur = { indicateur: '', data: [] };
+  let dropdownSelectionProjetIndicateur = { indicateur: '', data: [] };
+  let dropdownSelectionThemeIndicateur = { indicateur: '', data: [] };
+  let dropdownSelectionInstitutionIndicateur = { indicateur: '', data: [] };
+  let dropdownSelectionBailleurIndicateur = { indicateur: '', data: [] };
+  let dropdownSelectionBeneficiaireIndicateur = { indicateur: '', data: [] };
 
+  
   let cardForSideBar =
     'bg-white dark:bg-#23409A-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 divide-gray-200 dark:divide-gray-700 shadow-md p-2 mb-2';
 
-  let dropdownStyle = 'w-48 overflow-y-auto py-1 h-48';
-
+  let dropdownStyle = ' border border-red-500 overflow-y-auto py-1 h-48';
+  let listItemStyle = 'rounded w-56 pl-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-600';
 
   let appuiBeneficiairesItems: any[] = [];
   let appuiInstitutionnelItems: any[] = [];
   let appuiBailleursItems: any[] = [];
-  let projetsUnique= new Set();
+  let projetsUnique:
+  {
+    nom: string,
+    acronyme: string
+  } []= [];
+  
 
   let themesFromSheet=[
     "Renforcement des capacités/Compétences",
@@ -198,25 +269,22 @@
   onMount(async function () {
     
     try {
-      const { mandatData, dataArr, icspData, communeData, projectData } = await fetchData();
+      const data = await fetchData();
+      communeData=data.communeData;
+      projetData=data.projetData;
 
       // Mettre à jour les propriétés individuelles du store
       dataStore.update((store) => {
         loadingData = false;
-        store.icspData = icspData;
-        store.dataArr = dataArr;
-        store.mandatData = mandatData;
         store.communeData = communeData;
-        store.projectData = projectData
+        store.projetData = projetData
         return store;
       });
-
-
       
-      for (var i = 0; i < projectData.length; i++) {
-          let row = projectData[i];
+      for (var i = 0; i < projetData.length; i++) {
+          let row = projetData[i];
           // Récupérez la valeur de la colonne "Appui Beneficiaires" de chaque ligne
-          let appuiBeneficiairesValue = row["Ville/Bénéficiaire(s)"];
+          let appuiBeneficiairesValue = row["id_COMMUNE"];
           
           if (appuiBeneficiairesValue !== null) {
               appuiBeneficiairesValue = appuiBeneficiairesValue.toString()
@@ -242,64 +310,24 @@
           }
 
           let projet = row["Nom"];
+          let acronyme = row["Acronyme"];
           if (projet) {
-            projetsUnique.add(projet);
+            projetsUnique.push({nom:projet,acronyme:acronyme});
           }
       }
-
       appuiBeneficiairesItems = [...new Set(appuiBeneficiairesItems)];
       appuiBailleursItems = [...new Set(appuiBailleursItems)];
       appuiInstitutionnelItems = [...new Set(appuiInstitutionnelItems)];
-      //themesFromSheet=...
-      //projetsUnique=...
 
-    
-      valeursAttribution = uniqueValues(dataArr, indicateur1);
-      valeursSecteur = uniqueValues(dataArr, indicateur2);
-      valeursDomaine = uniqueValues(dataArr, indicateur3);
-      valeursBeneficiaire = uniqueValues(dataArr, indicateur4, true, 'id_COMMUNE');
-      valeursBeneficiaire2 = uniqueValues(icspData, indicateur7, true, 'id_COMMUNE');
-      valeursSourcefinancement = uniqueValues(dataArr, indicateur5);
-      valeursPartenaires = uniqueValues(dataArr, indicateur6);
-      valeursDepartement = uniqueValues(dataArr, indicateur8, true, 'id_DEPARTEMENT');
-      valeursRegion = uniqueValues(dataArr, indicateur9, false, 'id_REGION');
-      valeursAvancement = uniqueValues(dataArr, indicateur10);
-
-      // Fusionner les deux tableaux en un seul
-      const mergedArray = [...valeursBeneficiaire, ...valeursBeneficiaire2];
-
-      let uniqueBeneficiaireForIDFetch = removeDuplicatesByAttribute(mergedArray, 'id_COMMUNE');
+      getFiltersItems();
       // Mettre à jour les propriétés individuelles du store
       dataStore.update((store) => {
-        store.keyCommuneID_Commune = uniqueBeneficiaireForIDFetch;
+        store.keyCommuneID_Commune = appuiBeneficiairesItems;
         return store;
       });
-      //ICSP
-      dropdownSelectionIndicateur7.indicateur = indicateur7;
-      // ACCORD
-      dropdownSelectionIndicateur9.indicateur = indicateur10;
-      dropdownSelectionIndicateur9.indicateur = indicateur9;
-      dropdownSelectionIndicateur8.indicateur = indicateur8;
-      dropdownSelectionIndicateur6.indicateur = indicateur6;
-      dropdownSelectionIndicateur5.indicateur = indicateur5;
-      dropdownSelectionIndicateur4.indicateur = indicateur4;
-      dropdownSelectionIndicateur3.indicateur = indicateur3;
-      dropdownSelectionIndicateur2.indicateur = indicateur2;
-      dropdownSelectionIndicateur1.indicateur = indicateur1;
+      
 
-      // Ajouter les objets à l'array dropdownSelections
-      dropdownSelectionsAll.push(
-        dropdownSelectionIndicateur10,
-        dropdownSelectionIndicateur9,
-        dropdownSelectionIndicateur8,
-        dropdownSelectionIndicateur7,
-        dropdownSelectionIndicateur6,
-        dropdownSelectionIndicateur5,
-        dropdownSelectionIndicateur4,
-        dropdownSelectionIndicateur3,
-        dropdownSelectionIndicateur2,
-        dropdownSelectionIndicateur1
-      );
+      
 
       // Slider
       minMaxYearICSP = findMinMax(icspData, 'ANNEE');
@@ -324,6 +352,68 @@
 
     loadData();
   });
+
+  function getFiltersItems(){
+    valeursTheme= themesFromSheet
+    .sort()
+    .map((item)=>({
+      key: item,
+      checked: false,
+      id: null
+    }))
+
+    valeursInstitution= appuiInstitutionnelItems
+    .sort((a, b) => a.localeCompare(b))
+    .map((item)=>({
+      key: item,
+      checked: false,
+      id: null
+    }));
+
+    valeursBailleur = appuiBailleursItems
+    .sort((a, b) => a.localeCompare(b))
+    .map((item)=>({
+      key: item,
+      checked: false,
+      id: null
+    }));
+
+    valeursProjet = projetsUnique
+    .sort((a, b) => a.nom.localeCompare(b.nom))
+    .map((item)=>({
+      key: item.nom,
+      acronyme: item.acronyme,
+      checked: false,
+      id: null
+    }));
+
+    valeursBeneficiaire =getCommuneInfo(appuiBeneficiairesItems)
+
+    dropdownSelectionRegionIndicateur.indicateur = regionIndicateur;
+    dropdownSelectionProjetIndicateur.indicateur = projetIndicateur;
+    dropdownSelectionThemeIndicateur.indicateur = themeIndicateur;
+    dropdownSelectionInstitutionIndicateur.indicateur = institutionIndicateur;
+    dropdownSelectionBailleurIndicateur.indicateur = bailleurIndicateur;
+    dropdownSelectionBeneficiaireIndicateur.indicateur = beneficiaireIndicateur;
+    console.log(valeursRegion);
+  }
+  
+  function getCommuneInfo(ids){
+    let beneficiaires=[];
+    const data: any=communeData;
+    for (const id of ids){
+      const index=data.findIndex((commune: { id_COMMUNE: any; })=>commune.id_COMMUNE===id)
+      let item={
+        key:data[index].COMMUNE,
+        checked:false,
+        id:data[index].id_COMMUNE,
+        id_COMMUNE:data[index].id_COMMUNE,
+      }
+      beneficiaires.push(item);
+    }
+    return beneficiaires.sort((a, b) => a.key.localeCompare(b.key));
+  }
+  
 
   onMount(() => {
     if (width >= breakPoint) {
@@ -356,7 +446,6 @@
     checkedOptions: { checked: boolean },
     array: { indicateur: string; data: never[] },
     unique: any[],
-    section: string
   ) {
     checkedOptions.checked = !checkedOptions.checked;
 
@@ -448,11 +537,7 @@
       items = arrayAllIndicateurs;
       return items;
     });
-    storeIndicateurICSP.update((items) => {
-      //@ts-ignore
-      items = arrayAllIndicateursICSP;
-      return items;
-    });
+   
 
     update = update;
   }
@@ -462,20 +547,39 @@
     showProgressBar = false;
   }
 
-  const handleInput = (data) => {
-    return (filteredItems = data.filter((item) =>
-      item.toLowerCase().match(inputValue.toLowerCase())
-    ));
+  const handleInput = (event,data,filter) => {
+    const value = event.target.value;
+    const searchResult= data.filter((item) =>
+      item.toLowerCase().match(value.toLowerCase())
+    );
+    switch(filter) {
+      case 'Region':
+        regionSearchResult=searchResult
+      break;
+      case 'Nom':
+        projetSearchResult=searchResult
+      break;
+      case 'Institution':
+        institutionSearchResult=searchResult
+      break;
+      case 'Bailleur':
+        bailleurIndicateur=searchResult;
+      break;
+      case 'Ville/Bénéficiaire(s)':
+        beneficiaireIndicateur=searchResult;
+      break;
+    } 
   };
 
-  function filterBeneficiaires(beneficiaires, filteredItems) {
-    return filteredItems.length === 0 || filteredItems.includes(beneficiaires.key);
+   // filter the list and display only the element found during the search 
+   function filterList(listItem, searchResult) {
+    return searchResult.length === 0 || searchResult.includes(listItem.key);
   }
 
   // Fonction pour réinitialiser les filtres et vider les dropdowns
   function resetFilters() {
     // Réinitialiser les filtres
-    arrayAllIndicateurs = { accord: [], icsp: [] };
+    arrayAllIndicateurs = [];
     // Vider les dropdowns en réinitialisant les valeurs
     valeursAttribution.forEach((attribution) => (attribution.checked = false));
     valeursSecteur.forEach((secteur) => (secteur.checked = false));
@@ -488,6 +592,16 @@
     valeursRegion.forEach((region) => (region.checked = false));
     valeursAvancement.forEach((avancement) => (avancement.checked = false));
   }
+
+  function clearIndicator(){
+    filterIndicators.region=false;
+    filterIndicators.projet=false;
+    filterIndicators.beneficiaire=false;
+    filterIndicators.theme=false;
+    filterIndicators.bailleur=false;
+    filterIndicators.institution=false;
+  }
+
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
@@ -570,26 +684,76 @@
                   <BuildingOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
                 </svelte:fragment>
                 <div class="w-full flex justify-center">
+                  <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]">
+                    Sélectionner un projet
+                    <ChevronDownSolid class="w-3 h-3 ms-2 text-white dark:text-white"/>
+                  </Button>
+                </div>
+
+                <Dropdown class={dropdownStyle}>
+                  <div slot="header" class="p-3">
+                    <SearchBar
+                      bind:inputValue={projetInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursProjet },'valeursProjet'),projetIndicateur)
+                      }
+                    />
+                  </div>
+                  {#each valeursProjet as projet}
+                    {#if filterList(projet,projetSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={projetIndicateur+"-checkbox"}
+                          checked={projet.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              projet,
+                              dropdownSelectionProjetIndicateur,
+                              valeursProjet,
+                            )}>{projet.key}</Checkbox
+                        >
+                      </li>
+                    {/if}
+                  {/each}
+                </Dropdown>
+              </SidebarDropdownWrapper>
+            </SidebarGroup>
+
+            <SidebarGroup class={cardForSideBar}>
+              <SidebarDropdownWrapper  label="Selon un thème">
+                <svelte:fragment slot="icon">
+                  <UsersGroupOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                </svelte:fragment>
+                <div class="w-full flex justify-center">
                   <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]"
-                    >Sélectionner un projet<ChevronDownSolid
+                    >Sélection des thèmes<ChevronDownSolid
                       class="w-3 h-3 ms-2 text-white dark:text-white"
                     /></Button
                   >
                 </div>
-
-                <Dropdown class="w-[250px] overflow-y-auto py-1 h-48">
+                
+                <Dropdown class={dropdownStyle}>
                   <div slot="header" class="p-3">
                     <SearchBar
-                      bind:inputValue
-                      on:input={handleInput(
-                        jsonToItem({ valeursBeneficiaire2 }, 'valeursBeneficiaire2')
-                      )}
+                      bind:inputValue={themeInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursTheme },'valeursTheme'),themeIndicateur)
+                      }
                     />
                   </div>
-                  {#each projetsUnique as projet}
-                    <li class="rounded p-2 mb-0.5 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      {projet}
-                    </li>
+                  {#each valeursTheme as theme}
+                    {#if filterList(theme,themeSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={themeIndicateur+"-checkbox"}
+                          checked={theme.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              theme,
+                              dropdownSelectionBeneficiaireIndicateur,
+                              valeursBeneficiaire,
+                            )}>{theme.key}</Checkbox
+                        >
+                      </li>
+                    {/if}
                   {/each}
                 </Dropdown>
               </SidebarDropdownWrapper>
@@ -607,22 +771,29 @@
                     /></Button
                   >
                 </div>
-
                 <Dropdown class={dropdownStyle}>
                   <div slot="header" class="p-3">
                     <SearchBar
-                      bind:inputValue
-                      on:input={handleInput(
-                        jsonToItem({ valeursBeneficiaire2 }, 'valeursBeneficiaire2')
-                      )}
+                      bind:inputValue={institutionInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursInstitution },'valeursInstitution'),institutionIndicateur)
+                      }
                     />
                   </div>
-                  {#each appuiInstitutionnelItems as institution}
-                      <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <Checkbox class="beneficiaireIcsp-checkbox">
-                          {institution}
-                        </Checkbox>
+                  {#each valeursInstitution as institution}
+                    {#if filterList(institution,institutionSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={institutionIndicateur+"-checkbox"}
+                          checked={institution.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              institution,
+                              dropdownSelectionInstitutionIndicateur,
+                              valeursInstitution,
+                            )}>{institution.key}</Checkbox
+                        >
                       </li>
+                    {/if}
                   {/each}
                 </Dropdown>
               </SidebarDropdownWrapper>
@@ -644,18 +815,26 @@
                 <Dropdown class={dropdownStyle}>
                   <div slot="header" class="p-3">
                     <SearchBar
-                      bind:inputValue
-                      on:input={handleInput(
-                        jsonToItem({ valeursBeneficiaire2 }, 'valeursBeneficiaire2')
-                      )}
+                      bind:inputValue={bailleurInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursBailleur },'valeursBailleur'),bailleurIndicateur)
+                      }
                     />
                   </div>
-                  {#each appuiBailleursItems as bailleur}
-                      <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <Checkbox class="beneficiaireIcsp-checkbox">
-                          {bailleur}
-                        </Checkbox>
+                  {#each valeursBailleur as bailleur}
+                    {#if filterList(bailleur,bailleurSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={bailleurIndicateur+"-checkbox"}
+                          checked={bailleur.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              bailleur,
+                              dropdownSelectionBailleurIndicateur,
+                              valeursBailleur,
+                            )}>{bailleur.key}</Checkbox
+                        >
                       </li>
+                    {/if}
                   {/each}
                 </Dropdown>
               </SidebarDropdownWrapper>
@@ -677,18 +856,26 @@
                 <Dropdown class={dropdownStyle}>
                   <div slot="header" class="p-3">
                     <SearchBar
-                      bind:inputValue
-                      on:input={handleInput(
-                        jsonToItem({ valeursBeneficiaire2 }, 'valeursBeneficiaire2')
-                      )}
+                      bind:inputValue={beneficiaireInputValue}
+                      on:input={
+                        (event)=>handleInput(event,jsonToItem({ valeursBeneficiaire },'valeursBeneficiaire'),beneficiaireIndicateur)
+                      }
                     />
                   </div>
-                  {#each appuiBeneficiairesItems as beneficiaire}
-                    <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <Checkbox class="beneficiaireIcsp-checkbox">
-                        {beneficiaire}
-                      </Checkbox>
-                    </li>
+                  {#each valeursBeneficiaire as beneficiaire}
+                    {#if filterList(beneficiaire,beneficiaireSearchResult)}
+                      <li class={listItemStyle}>
+                        <Checkbox class={beneficiaireIndicateur+"-checkbox"}
+                          checked={beneficiaire.checked}
+                          on:change={() =>
+                            toggleCheckbox(
+                              beneficiaire,
+                              dropdownSelectionBeneficiaireIndicateur,
+                              valeursBeneficiaire,
+                            )}>{beneficiaire.key}</Checkbox
+                        >
+                      </li>
+                    {/if}
                   {/each}
                 </Dropdown>
               </SidebarDropdownWrapper>
@@ -696,7 +883,7 @@
             
         </SidebarWrapper>
 
-        {#if arrayAllIndicateurs.accord.length > 0 || arrayAllIndicateurs.icsp.length > 0}
+        {#if Object.values(arrayAllIndicateurs).some(value => value === true)}
         <div class="w-full flex justify-center">
           <button
             class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-800 m-4"

@@ -539,7 +539,7 @@
           });
 
 
-          map.addSource('com mune_geojson', {
+          map.addSource('commune_geojson', {
               type: 'geojson',
               data: 'communes_communaute_cameroun.geojson',
               'generateId': true //This ensures that all features have unique IDs
@@ -915,6 +915,7 @@
 
   // Fonction pour afficher un popup lorsque l'utilisateur clique sur une caractéristique
   function showPopup(e) {
+    console.log('lets show the pop up');
       var coordinates = e.lngLat;
       var description = e.features[0].properties.Name; // Remplacez 'description' par le nom de votre propriété contenant les informations du popup
 

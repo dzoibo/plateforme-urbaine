@@ -1,14 +1,16 @@
 <script>
   export let inputValue = '';
+  export let placeholder='Rechercher...';
 </script>
 
 <input
   type="text"
-  class=" border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+  class=" border-gray-300 w-full rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
   autocomplete="off"
-  placeholder="Rechercher..."
+  placeholder={placeholder}
   id="searchInput"
   bind:value={inputValue}
+  on:blur
   on:input
 />
 

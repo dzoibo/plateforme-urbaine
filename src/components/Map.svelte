@@ -3,7 +3,6 @@
   import {
     dataStore,
     rangeValue,
-    buttonICSP,
     rangeValueAccord,
     storeIndicateur5,
     storeIndicateur,
@@ -63,39 +62,29 @@
   import { onMount, onDestroy } from 'svelte';
 
   let width;
-  let dataArr2 = [];
   let dataForMap = [];
-  let mandatData = [];
-  let icspData = [];
   let communeData = [];
   let projetData= [];
   let keyCommuneID_Commune = [];
-  let statisticsPerRegion = [];
   let projetPerRegion=[];
   let MinMax = {};
   let geojsonRegionCentroid;
-  let geojsonDepartementCentroid;
   let geojsonMunicipaliteCentroid;
   let unsubscribe;
   let nom_commune;
-  let detailsMandatCommune = [];
   let clickedLayerInfo = null; // Variable to store information about the clicked layer
   let anneeFinMandat = [];
-  let showICSP;
   let currentZoom = 0;
   let valueSliderICSP = 0; // Initialisez avec une valeur par défaut
   let valueSliderAccord = []; // Initialisez avec une valeur par défaut
   let storeIndicateurForMap = {};
   let mapFilterIndicateur = {};
   let storeIndicateur5ForMap ={};
-  let dataForBarChart = {};
-  let dataForLineChart = {};
   let allProject = [];
   let scale;
   let getbbox = [];
   let heightNavBarForSideBar;
   let sidebarId;
-  let showDep = false;
   let showCom = false;
   let showReg = true;
   let toolTipStyle="bg-white text-black font-normal z-10";
@@ -165,8 +154,6 @@
     const response = await fetch('./data/limite_region_centroide.geojson');
     geojsonRegionCentroid = await response.json();
 
-    const responseDepartement = await fetch('./data/limite_departement_centroide.geojson');
-    geojsonDepartementCentroid = await responseDepartement.json();
 
     const responseMunicipalite = await fetch('./data/limite_municipalite_centroide.geojson');
     geojsonMunicipaliteCentroid = await responseMunicipalite.json();
@@ -183,9 +170,6 @@
 
 
     unsubscribe = dataStore.subscribe((store) => {
-      dataArr2 = store.dataArr;
-      mandatData = store.mandatData;
-      icspData = store.icspData;
       communeData = store.communeData;
       keyCommuneID_Commune = store.keyCommuneID_Commune;
       projetData = store.projectData
@@ -217,16 +201,6 @@
       heightNavBarForSideBar = $heightNavBar;
     });
 
-    // Récupération de la data provenant de layout.svete
-    buttonICSP.subscribe(($showICSP) => {
-      showICSP = $showICSP;
-    });
-
-    if (showICSP) {
-      dataForMap = icspData;
-    } else {
-      dataForMap = dataArr2;
-    }
   });
 
   // Sélectionnez l'élément du drawer par son identifiant
@@ -249,32 +223,11 @@
     }
 
     if (dataForMap.length > 0 ) {
-      if (
-        (storeIndicateurForMap.accord.some((item) => item.indicateur === 'Bénéficiaire') &&
-          dataForMap.length > 0) ||
-        (storeIndicateurForMap.icsp.some((item) => item.indicateur === 'COMMUNE') &&
-          dataForMap.length > 0)
-      ) {
-        // Déclarez l'indicateur dans une variable
-        if (dataForMap.length > 0 ) {
+      if (storeIndicateurForMap.some((item) => item.indicateur === 'Bénéficiaire')  ) {
           if (map && loaded) {
-            if (
-              storeIndicateurForMap.accord.some((item) => item.indicateur === 'Bénéficiaire') &&
-              !showICSP
-            ) {
-              indicateur = 'Bénéficiaire';
-              communesCommunes = storeIndicateurForMap.accord.find(
-                (item) => item.indicateur === indicateur
+            communesCommunes = storeIndicateurForMap.find(
+                (item) => item.indicateur === 'Bénéficiaire'
               ).data;
-            } else if (
-              storeIndicateurForMap.icsp.some((item) => item.indicateur === 'COMMUNE') &&
-              showICSP
-            ) {
-              indicateur = 'COMMUNE';
-              communesCommunes = storeIndicateurForMap.icsp.find(
-                (item) => item.indicateur === indicateur
-              ).data;
-            }
 
             let getID = fetchIdCommunesFromCommunesID(
               communesCommunes,
@@ -299,12 +252,10 @@
               });
             }
           }
-        }
       } else {
         // Cas où aucune condition n'est satisfaite, donc CommunesCommunes est un tableau vide
         communesCommunes = [];
       }
-
       
       if (getbbox.length > 0) {
         scale = 'id_COMMUNE';
@@ -377,7 +328,6 @@
       }else if (theme==='accord'){
         storeAccordsBeneficiaire.set(false);
       }
-      storeCommune.set('');
       updateGetBox('');
       setTimeout(() => {
         toggleLayer(layer);
@@ -412,7 +362,6 @@
   }
   function toggleLayer(layer) {
     showReg = layer === 'reg' ? true : false;
-    showDep = layer === 'dep' ? true : false;
     showCom = layer === 'com' ? true : false;
     // Supprimez la classe "active" de tous les boutons
     const buttons = document.querySelectorAll('.maplibregl-ctrl-icon');
@@ -592,7 +541,7 @@
         <MarkerLayer let:feature>
           {#each projetPerRegion as { id_REGION, value }}
             {#if feature.properties['ref:COG'] === id_REGION}
-              <div class="bg-gray-100 text-xs bg-opacity-50 bg-trans rounded-full px-3 py-2 shadow align flex flex-col items-center">
+              <div class="bg-gray-100 text-xs bg-opacity-50 bg-trans rounded-full p-2 shadow align flex flex-col items-center">
                 <div class="poppins-medium">{feature.properties.name}</div>
                 ---
                 <div class="poppins-light">NOMBRE DE PROJET(S): {formattedValue(value)}</div>
