@@ -250,7 +250,7 @@
   let filterIndicatorStyle='w-2.5 h-2.5 mb-2 rounded-[50%] bg-[#234099]'
   let closeBtnStyle = 'absolute focus:outline-none whitespace-normal focus:ring-2 p-1.5  hover:bg-red-500 ms-auto inline-flex items-center justify-center w-6 !h-6 font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2';
   let selectedItemStyle="inline-flex relative px-5 py-2.5 m-1 text-sm font-medium text-center text-sm text-white bg-[#0095DC] rounded-lg";
-  let appuiBeneficiairesItems: any[] = [];
+  let appuiBeneficiairesItems: never[] = [];
   let appuiInstitutionnelItems: any[] = [];
   let appuiBailleursItems: any[] = [];
   let projetsUnique:
@@ -330,13 +330,7 @@
       appuiInstitutionnelItems = [...new Set(appuiInstitutionnelItems)];
 
       getFiltersItems();
-      // Mettre à jour les propriétés individuelles du store
-      dataStore.update((store) => {
-        store.keyCommuneID_Commune = appuiBeneficiairesItems;
-        return store;
-      });
-      
-
+     
       
 
       // Slider
@@ -398,7 +392,11 @@
     }));
 
     valeursBeneficiaire =getCommuneInfo(appuiBeneficiairesItems)
-
+ // Mettre à jour les propriétés individuelles du store
+      dataStore.update((store) => {
+        store.keyCommuneID_Commune = valeursBeneficiaire as never;
+        return store;
+      });
     dropdownSelectionRegionIndicateur.indicateur = regionIndicateur;
     dropdownSelectionProjetIndicateur.indicateur = projetIndicateur;
     dropdownSelectionThemeIndicateur.indicateur = themeIndicateur;
@@ -600,14 +598,16 @@
     );
     switch(filter) {
       case regionIndicateur:
-        regionSearchResult=searchResult
+        regionSearchResult=searchResult;
       break;
       case projetIndicateur:
-        projetSearchResult=searchResult
+        projetSearchResult=searchResult;
       break;
       case institutionIndicateur:
-        institutionSearchResult=searchResult
+        institutionSearchResult=searchResult;
       break;
+      case themeIndicateur:
+        themeSearchResult=searchResult;
       case bailleurIndicateur:
         bailleurSearchResult=searchResult;
       break;
@@ -831,8 +831,8 @@
                           on:change={() =>
                             toggleCheckbox(
                               theme,
-                              dropdownSelectionBeneficiaireIndicateur,
-                              valeursBeneficiaire,
+                              dropdownSelectionThemeIndicateur,
+                              valeursTheme,
                             )}>{theme.key}</Checkbox
                         >
                       </li>
@@ -969,7 +969,7 @@
                     <li class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <Checkbox
                         class={institutionIndicateur+"-all-checkbox"}
-                        checked={filterCheckedAll.theme}
+                        checked={filterCheckedAll.institution}
                         on:change={() =>
                           toggleAllCheckbox(institutionIndicateur)
                         }>Tout sélectionner</Checkbox

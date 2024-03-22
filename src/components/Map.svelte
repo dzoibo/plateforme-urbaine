@@ -4,23 +4,13 @@
     dataStore,
     rangeValue,
     rangeValueAccord,
-    storeIndicateur5,
     storeIndicateur,
     heightNavBar
   } from '../../shared/store';
   import {
     findMinMax,
-    findAllObjectsByAttribute,
-    calculateTotalByRegion,
     formattedValue,
-    sumISPValues,
-    transformDataForBarChart,
-    optionForBarChart,
-    optionForLineChart,
-    getSumPerYear,
     rechercheMulticriteres,
-    rechercheMulticriteresPourFEICOM,
-    sortByDescendingOrder,
     fetchIdCommunesFromCommunesID,
     calculateTotalProjetByRegion,
     getOverallBbox
@@ -29,15 +19,10 @@
     Drawer,
     Card,
     Tooltip,
-    Chart,
     Tabs,
     TabItem,
     Listgroup
   } from 'flowbite-svelte';
-  import {
-    InfoCircleSolid,
-    GridSolid
-  } from 'flowbite-svelte-icons';
   import { sineIn } from 'svelte/easing';
   import {
     MapLibre,
@@ -77,9 +62,7 @@
   let currentZoom = 0;
   let valueSliderICSP = 0; // Initialisez avec une valeur par défaut
   let valueSliderAccord = []; // Initialisez avec une valeur par défaut
-  let storeIndicateurForMap = {};
-  let mapFilterIndicateur = {};
-  let storeIndicateur5ForMap ={};
+  let storeIndicateurForMap = [];
   let allProject = [];
   let scale;
   let getbbox = [];
@@ -172,7 +155,8 @@
     unsubscribe = dataStore.subscribe((store) => {
       communeData = store.communeData;
       keyCommuneID_Commune = store.keyCommuneID_Commune;
-      projetData = store.projectData
+      projetData = store.projetData;
+      dataForMap= projetData;
 
     });
 
@@ -181,10 +165,7 @@
       valueSliderICSP = $rangeValue;
     });
 
-    // Récupération de la data provenant de layout.svete
-    storeIndicateur5.subscribe(($storeIndicateur5) => {
-      storeIndicateur5ForMap = $storeIndicateur5;
-    });
+   
 
     // Récupération de la data provenant de layout.svete
     storeIndicateur.subscribe(($storeIndicateur) => {
@@ -208,8 +189,8 @@
 
   // Reactivité
   $: {
-    let indicateur;
-    let communesCommunes = [];
+    
+    let selectedCommune = [];
     if (showCom) {
       scale = 'id_COMMUNE';
       toggleLayer('com');
@@ -221,49 +202,33 @@
     if (sidebarId) {
       heightSideBar = sidebarId.offsetHeight;
     }
-
     if (dataForMap.length > 0 ) {
-      if (storeIndicateurForMap.some((item) => item.indicateur === 'Bénéficiaire')  ) {
+      if (storeIndicateurForMap.some((item) => item.indicateur === 'beneficiaire')  ) {
           if (map && loaded) {
-            communesCommunes = storeIndicateurForMap.find(
-                (item) => item.indicateur === 'Bénéficiaire'
+            selectedCommune = storeIndicateurForMap.find(
+                (item) => item.indicateur === 'beneficiaire'
               ).data;
 
             let getID = fetchIdCommunesFromCommunesID(
-              communesCommunes,
+              selectedCommune,
               keyCommuneID_Commune,
               'id_COMMUNE',
               'key'
             );
-            getbbox = fetchIdCommunesFromCommunesID(getID, communeData, 'bbox', 'id_COMMUNE');
-            const overallBbox = getOverallBbox(getbbox);
-
-
-            if (getbbox.length > 0) {
-              map.fitBounds(overallBbox, {
-                padding: 20, // Espace de marge autour de la BoundingBox
-                maxZoom: 15 // Niveau de zoom maximal
-              });
-            } else {
-              map.fitBounds(bbox, {
-                duration: 500,
-                center: center,
-                zoom: zoom // Niveau de zoom maximal
-              });
-            }
+            updateGetBox(getID);
           }
       } else {
-        // Cas où aucune condition n'est satisfaite, donc CommunesCommunes est un tableau vide
-        communesCommunes = [];
+        // Cas où aucune condition n'est satisfaite, donc selectedCommune est un tableau vide
+        selectedCommune = [];
       }
       
       if (getbbox.length > 0) {
         scale = 'id_COMMUNE';
         toggleLayer('com');
       }
-      dataForMap = projetData;
-      projetPerRegion=calculateTotalProjetByRegion(projetData,scale);
+      projetPerRegion=calculateTotalProjetByRegion(projetData,scale,storeIndicateurForMap);
       MinMax = findMinMax(projetPerRegion, 'value');
+
 
       /* statisticsPerRegion = calculateTotalByRegion(
         dataForMap,
@@ -280,11 +245,11 @@
   function handleLayerClick(e) {
     clickedLayerInfo=e
     nom_commune = e.detail.features[0].properties['ref:COG'];
-      allProject = rechercheMulticriteresPourFEICOM(
+      allProject = rechercheMulticriteres(
         dataForMap,
         nom_commune,
         scale,
-        storeIndicateurForMap.accord
+        storeIndicateurForMap
       );
 
       hiddenBackdropFalse = false;
@@ -296,7 +261,6 @@
       handleLayerClick(e);
     }
   }
-
 
   function getUpdatedPaintProperties(MinMax) {
     return {
@@ -318,6 +282,22 @@
     };
   }
 
+  function updateGetBox(getID){
+    getbbox = fetchIdCommunesFromCommunesID(getID, communeData, 'bbox', 'id_COMMUNE');
+    const overallBbox = getOverallBbox(getbbox);
+    if (getbbox.length > 0) {
+      map.fitBounds(overallBbox, {
+        padding: 20, // Espace de marge autour de la BoundingBox
+        maxZoom: 15 // Niveau de zoom maximal
+      });
+    } else {
+      map.fitBounds(bbox, {
+        duration: 500,
+        center: center,
+        zoom: zoom // Niveau de zoom maximal
+      });
+    }
+  }
   /**
    * when a commune is selected, we need to remove zoom before being able to toggle the layer
   */
@@ -338,7 +318,7 @@
   } 
 
    //automalticaly change the scale
-   function toggleLayerOnZoom(){
+  function toggleLayerOnZoom(){
     const currentTime = Date.now();
     let tempLayer=layer;
     if(currentZoom>previousZoom){
@@ -489,8 +469,6 @@
     <FullscreenControl position="top-right" />
     <ScaleControl />
 
-    
-
     <Control position="top-left" class="flex flex-col gap-y-2">
       <ControlGroup >
 
@@ -499,7 +477,7 @@
         </Tooltip>
         
         <div id="reg-tooltip">
-          <ControlButton id="reg" class={showReg ? 'bg-gray-200' : ''} on:click={() => toggleLayer('reg')}>REG</ControlButton>
+          <ControlButton id="reg" class={showReg ? 'bg-gray-200' : ''} on:click={() => clearFilterBeforeToggleZoom('reg')}>REG</ControlButton>
         </div>
 
         <Tooltip triggeredBy="#com-tooltip" class={toolTipStyle} placement ='right' >
