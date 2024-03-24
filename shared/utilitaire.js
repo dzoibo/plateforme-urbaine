@@ -206,7 +206,7 @@ function matchFilterIndicators(filters){
             filter.indicateur="Bailleur(s)";
           break;
           case 'beneficiaire':
-            filter.indicateur="Ville/Bénéficiaire(s)";
+            filter.indicateur="id_COMMUNE";
           break;
         }
     }

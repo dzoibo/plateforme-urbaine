@@ -203,13 +203,13 @@
                 (item) => item.indicateur === 'beneficiaire'
               ).data;
 
-            let getID = fetchIdCommunesFromCommunesID(
+            /* let getID = fetchIdCommunesFromCommunesID( //we don't longer need this since we are actually dealing with commune's id directly
               selectedCommune,
               keyCommuneID_Commune,
               'id_COMMUNE',
               'key'
-            );
-            updateGetBox(getID);
+            ); */
+            updateGetBox(selectedCommune);
           }
       } else {
         // Cas où aucune condition n'est satisfaite, donc selectedCommune est un tableau vide

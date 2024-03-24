@@ -483,7 +483,7 @@
     update = true;
     //@ts-ignore
     setTimeout(() => {
-      if(array.indicateur===themeIndicateur){
+      if(array.indicateur===themeIndicateur || array.indicateur===beneficiaireIndicateur){
         array.data = unique.filter((unique) => unique.checked).map((unique) => unique.id);
       }else{
         array.data = unique.filter((unique) => unique.checked).map((unique) => unique.key);
@@ -496,7 +496,6 @@
       } else {
         arrayAllIndicateurs.push(array);
       }
-
       update = false;
     }, 10);
 
@@ -616,7 +615,7 @@
 
   // Fonction pour réinitialiser les filtres et vider les dropdowns
   function resetFilters() {
-    arrayAllIndicateurs.forEach((item) => (item.checked = false));
+    arrayAllIndicateurs=[];
     valeursProjet.forEach((item) => (item.checked = false));
     valeursTheme.forEach((item) => (item.checked = false));
     valeursInstitution.forEach((item) => (item.checked = false));
@@ -671,7 +670,7 @@
 
         <SidebarWrapper divClass="overflow-y-auto" style=" overflow-x: hidden">
 
-            <SidebarGroup class={cardForSideBar}>
+            <SidebarGroup class={"hidden"+cardForSideBar}>
               <SidebarDropdownWrapper label="Selon une periode">
                 <svelte:fragment slot="icon">
                   <CalendarMonthOutline
@@ -720,9 +719,6 @@
                   {/if}
                 </svelte:fragment>
                 <div class="w-full flex justify-center">
-                  {#if filterIndicators.nom && !filterCheckedAll.nom}
-                    <div class={filterIndicatorStyle} ></div>
-                  {/if}
                   <Button class="bg-[#234099] w-[260px] hover:bg-[#182D73]">
                     Sélectionner un projet
                     <ChevronDownSolid class="w-3 h-3 ms-2 text-white dark:text-white"/>
@@ -911,15 +907,15 @@
                 <div class="px-2 pt-1 pb-2">
                   {#each arrayAllIndicateurs as indicateur}
                     {#if indicateur.indicateur === dropdownSelectionBeneficiaireIndicateur.indicateur}
-                      {#each indicateur.data as word (word)}
+                      {#each indicateur.data as id (id)}
                         <div 
                           class={selectedItemStyle}
                         >
-                          {word}
+                          {(replaceKey(id,valeursBeneficiaire))} 
                           <CloseButton
                             on:click={() =>
                               closeDiv(
-                                word,
+                                replaceKey(id,valeursBeneficiaire),
                                 dropdownSelectionBeneficiaireIndicateur,
                                 valeursBeneficiaire,
                               )}
@@ -983,29 +979,31 @@
                       </li>
                     {/if}
                   {/each}
-                  <div class="px-2 pt-1 pb-2">
-                    {#each arrayAllIndicateurs as indicateur}
-                      {#if indicateur.indicateur === dropdownSelectionInstitutionIndicateur.indicateur}
-                        {#each indicateur.data as word (word)}
-                          <div 
-                            class={selectedItemStyle}
-                          >
-                            {word}
-                            <CloseButton
-                              on:click={() =>
-                                closeDiv(
-                                  word,
-                                  dropdownSelectionInstitutionIndicateur,
-                                  valeursInstitution,
-                                )}
-                              class={closeBtnStyle}
-                            />
-                          </div>
-                        {/each}
-                      {/if}
-                    {/each}
-                  </div>
                 </Dropdown>
+                <div class="px-2 pt-1 pb-2">
+                  {#each arrayAllIndicateurs as indicateur}
+                    {#if indicateur.indicateur === dropdownSelectionInstitutionIndicateur.indicateur}
+                      {#each indicateur.data as word (word)}
+                        <div 
+                          class={selectedItemStyle}
+                        >
+                          {word}
+                          <CloseButton
+                            on:click={() =>
+                              closeDiv(
+                                word,
+                                dropdownSelectionInstitutionIndicateur,
+                                valeursInstitution,
+                              )}
+                            class={closeBtnStyle}
+                          />
+                        </div>
+                      {/each}
+                    {:else}
+                      {indicateur.indicateur}: == : dropdownSelectionInstitutionIndicateur.indicateur
+                    {/if}
+                  {/each}
+                </div>
               </SidebarDropdownWrapper>
             </SidebarGroup>
 
@@ -1088,7 +1086,7 @@
             
         </SidebarWrapper>
 
-        {#if Object.values(arrayAllIndicateurs).some(value => value === true)}
+        {#if Object.values(filterIndicators).some(value => value === true)}
         <div class="w-full flex justify-center">
           <button
             class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-800 m-4"
