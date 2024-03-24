@@ -664,51 +664,11 @@
         <!-- Bouton Reset Filter -->
         <div class="w-full bg-white flex flex-col items-center gap-3 py-4 mb-3" >
           <img src="logo-plateforme.jpg" alt="Logo de la plateforme" class="w-40 h-40">
-          <h1 class="font-bold text-lg">Plateforme Urbaine Cameroun</h1>
+          <h1 class="font-bold text-xl">Matrice des interventions</h1>
         </div>
         
 
         <SidebarWrapper divClass="overflow-y-auto" style=" overflow-x: hidden">
-
-            <SidebarGroup class={"hidden"+cardForSideBar}>
-              <SidebarDropdownWrapper label="Selon une periode">
-                <svelte:fragment slot="icon">
-                  <CalendarMonthOutline
-                    class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  />
-                </svelte:fragment>
-                <div class="flex items-center">
-                  <p>
-                    Visualisation des projets pour la période : {minSliderICSP +
-                      ' - ' +
-                      maxSliderICSP}
-                  </p>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                  <div class="flex-1">
-                    <Range
-                      class="!rounded-none"
-                      id="range-max"
-                      min={minMaxYearICSP.min}
-                      max={minMaxYearICSP.max}
-                      bind:value={minSliderICSP}
-                      step="1"
-                    />
-                  </div>
-                  <div class="flex-1">
-                    <Range
-                      class="!rounded-none"
-                      id="range-min"
-                      min={minMaxYearICSP.min}
-                      max={minMaxYearICSP.max}
-                      bind:value={maxSliderICSP}
-                      step="1"
-                    />
-                  </div>
-                </div>
-              </SidebarDropdownWrapper>
-            </SidebarGroup>
 
             <SidebarGroup class={cardForSideBar}>
               <SidebarDropdownWrapper  label="Selon un projet">

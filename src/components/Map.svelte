@@ -123,7 +123,7 @@
   };
 
   const attributsToHide = [
-        "name", "id", "Adamaoua", "Centre", "Est", "Extrême-Nord", "Littoral", "Nord", "Nord-Ouest", "Ouest", "Sud", "Sud-Ouest",
+        "name", "id","id_THEME", "Adamaoua", "Centre", "Est", "Extrême-Nord", "Littoral", "Nord", "Nord-Ouest", "Ouest", "Sud", "Sud-Ouest",
         "Adamaoua_geom", "Centre_geom", "Est_geom", "Extrême-Nord_geom", "Littoral_geom", "Nord_geom", "Nord-Ouest_geom", "Ouest_geom", "Sud_geom", "Sud-Ouest_geom",
         "Renforcement des capacités/Compétences", "Equipements de bureaux et matériels", "Appui institutionnel/gouvernance", "Environnement",
         "Assainissement solide/liquide et drainage", "Travaux d’Infrastructures urbaines structurantes", "Travaux d’Infrastructures urbaines légères",
@@ -239,7 +239,7 @@
   function handleLayerClick(e) {
     clickedLayerInfo=e
     nom_commune = e.detail.features[0].properties['ref:COG'];
-      allProject = rechercheMulticriteres(
+      allProject = rechercheMulticriteresPourProjet(
         dataForMap,
         nom_commune,
         scale,

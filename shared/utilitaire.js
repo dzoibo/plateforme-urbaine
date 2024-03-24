@@ -141,49 +141,25 @@ export function calculateTotalProjetByRegion(data, scale,filters) {
 }
 
 export function rechercheMulticriteresPourProjet(dataForMap, id_couche, scale, dataAllIndicateur) {
-    const filters=matchFilterIndicators(dataAllIndicateur);
     //export function rechercheMulticriteres(dataForMap, id_couche, scale, startYear, endYear, filters) {
-        return dataForMap.filter(objet => {
-           // const champAnnee = "Année financement";
-            // Vérifiez si le nom du département correspond
-            let correspondRegion = false;
-            if(objet[scale]){
-                correspondRegion = objet[scale].includes(id_couche);
-            }
-    
-            // Vérifiez si l'année correspond à la période spécifiée
-           // const correspondAnnee = parseInt(objet[champAnnee]) >= startYear && parseInt(objet[champAnnee]) <= endYear;
-    
-            // Vérifiez les critères de l'array filters
-            const critereIndicateur = filters.every(indicateur => {
-                if(indicateur==='theme'){
-                    indicateur.data.every(valeur=>{
-                        if(objet["Thème d'intervention"].includes(valeur)){
-                            return true;
-                        }
-                    })
-                    return false;
-                }else{
-                    const champIndicateur = indicateur.indicateur;
-                    const valeursIndicateur = indicateur.data;
-    
-                    if (valeursIndicateur.length === 0) {
-                        return true; // Aucun critère à vérifier, donc l'objet est toujours inclus
-                    }
-    
-                    // Vérifiez si l'objet a la propriété correspondant à l'indicateur
-                    if (!objet.hasOwnProperty(champIndicateur)) {
-                        return false;
-                    }
-                    // Vérifiez si la valeur de l'objet correspond à l'une des valeurs de l'indicateur
-                    return valeursIndicateur.includes(objet[champIndicateur]);
-                }
-            }); 
-            //Retournez true si tous les critères correspondent
-            //return correspondRegion && correspondAnnee && critereIndicateur;
-            return correspondRegion && critereIndicateur;
-        });
-    }
+    return dataForMap.filter(entry => {
+        // const champAnnee = "Année financement";
+        // Vérifiez si le nom du département correspond
+        let correspondRegion = false;
+        if(entry[scale]){
+            correspondRegion = entry[scale].includes(id_couche);
+        }
+
+        // Vérifiez si l'année correspond à la période spécifiée
+        // const correspondAnnee = parseInt(objet[champAnnee]) >= startYear && parseInt(objet[champAnnee]) <= endYear;
+
+        // Vérifiez les critères de l'array filters
+        const critereIndicateur = indicatorFilterCallBack(dataAllIndicateur, entry)
+        //Retournez true si tous les critères correspondent
+        //return correspondRegion && correspondAnnee && critereIndicateur;
+        return correspondRegion && critereIndicateur;
+    });
+}
     
 
 function matchFilterIndicators(filters){
