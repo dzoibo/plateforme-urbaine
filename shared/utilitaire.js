@@ -107,20 +107,18 @@ export function getSumPerYear(data, startYear, endYear, scale) {
 
 
 //export function calculateTotalProjetByRegion(data, startYear, endYear, scale, filters) {
-export function calculateTotalProjetByRegion(data, scale,dataAllIndicateur) {
-    const filters=matchFilterIndicators(dataAllIndicateur);
-    
+export function calculateTotalProjetByRegion(data, scale,filters) {
     if (!data || data.length === 0) {
         return []; // Si data est vide, retourne un tableau vide
     }
-    let dataToUse = data;
+    let dataToUse = [];
     const areFiltersEmpty = filters.every(filter => filter.data.length === 0);
     // Si tous les filtres sont vides, calculer la somme entre les deux dates sans filtre
-    console.log("before filter",dataToUse);
     if(!areFiltersEmpty) {
-        dataToUse = dataToUse.filter(entry => {return indicatorFilterCallBack(filters, entry)})
+        dataToUse = data.filter(entry => indicatorFilterCallBack(filters, entry))
+    }else{
+        dataToUse = data;
     }
-    console.log("after filter",dataToUse);
     const totalByRegion = {};
     for (const entry of dataToUse) {
         if(entry [scale]===null){
@@ -142,6 +140,52 @@ export function calculateTotalProjetByRegion(data, scale,dataAllIndicateur) {
     return result;
 }
 
+export function rechercheMulticriteresPourProjet(dataForMap, id_couche, scale, dataAllIndicateur) {
+    const filters=matchFilterIndicators(dataAllIndicateur);
+    //export function rechercheMulticriteres(dataForMap, id_couche, scale, startYear, endYear, filters) {
+        return dataForMap.filter(objet => {
+           // const champAnnee = "Année financement";
+            // Vérifiez si le nom du département correspond
+            let correspondRegion = false;
+            if(objet[scale]){
+                correspondRegion = objet[scale].includes(id_couche);
+            }
+    
+            // Vérifiez si l'année correspond à la période spécifiée
+           // const correspondAnnee = parseInt(objet[champAnnee]) >= startYear && parseInt(objet[champAnnee]) <= endYear;
+    
+            // Vérifiez les critères de l'array filters
+            const critereIndicateur = filters.every(indicateur => {
+                if(indicateur==='theme'){
+                    indicateur.data.every(valeur=>{
+                        if(objet["Thème d'intervention"].includes(valeur)){
+                            return true;
+                        }
+                    })
+                    return false;
+                }else{
+                    const champIndicateur = indicateur.indicateur;
+                    const valeursIndicateur = indicateur.data;
+    
+                    if (valeursIndicateur.length === 0) {
+                        return true; // Aucun critère à vérifier, donc l'objet est toujours inclus
+                    }
+    
+                    // Vérifiez si l'objet a la propriété correspondant à l'indicateur
+                    if (!objet.hasOwnProperty(champIndicateur)) {
+                        return false;
+                    }
+                    // Vérifiez si la valeur de l'objet correspond à l'une des valeurs de l'indicateur
+                    return valeursIndicateur.includes(objet[champIndicateur]);
+                }
+            }); 
+            //Retournez true si tous les critères correspondent
+            //return correspondRegion && correspondAnnee && critereIndicateur;
+            return correspondRegion && critereIndicateur;
+        });
+    }
+    
+
 function matchFilterIndicators(filters){
    let filtersCopy=[];
    for (const item of filters){
@@ -149,6 +193,9 @@ function matchFilterIndicators(filters){
    }
     for(const filter of filtersCopy){// here we change indicateur label to match what we actually have in our database
         switch (filter.indicateur) {
+          case 'theme':
+            filter.indicateur="id_THEME";
+          break;
           case 'nom':
             filter.indicateur="Nom";
           break;
@@ -163,26 +210,34 @@ function matchFilterIndicators(filters){
           break;
         }
     }
-    return filters
+    return filtersCopy
 }
 
-function indicatorFilterCallBack(filters,entry){
+function indicatorFilterCallBack(dataAllIndicateur,entry){
+    const filters=matchFilterIndicators(dataAllIndicateur);
     return filters.every(filter => 
-        {
-        let result=false;
-        if(filter.indicateur==='theme'){
-            filter.data.every(theme=>{
-                if(entry[theme]!==null && entry[theme].toLowerCase()==="vrai"){
-                    result= true
-                }
-            })
-        }else{
-            const filterKey = filter.indicateur;
-            const filterValues = filter.data;
-            const entryValue = entry[filterKey];
-            result =(!filterKey || entryValue === undefined || filterValues.includes(entryValue));
+    {
+        const filterKey = filter.indicateur;
+        const filterValues = filter.data;
+        const entryValue = entry[filterKey] ;
+        let isPresent= false;
+        if(entryValue!==undefined & entryValue !==null){
+            if(filterKey==='id_THEME'){
+                isPresent= entryValue.toString().split(',').some(value => filterValues.includes(parseInt(value)));
+            }else{
+                isPresent= entryValue.toString().split(',').some(value => filterValues.includes(value));
+            }
         }
-        return result;
+
+        if (filterValues.length === 0) {
+            return true; // Aucun critère à vérifier, donc l'objet est toujours inclus
+        }
+        // Vérifiez si l'objet a la propriété correspondant à l'indicateur
+        if (!entry.hasOwnProperty(filterKey)) {
+            return false;
+        }
+        // Vérifiez si la valeur de l'objet correspond à l'une des valeurs de l'indicateur
+        return (!filterKey || isPresent);
     });
 }
 // @ts-ignore
@@ -242,7 +297,6 @@ export function zoomToFeatureByValue(map, sourceName, columnName, selectedValue,
             filter: ['==', columnName, selectedValue] // Remplacer ces valeurs par les vôtres
         });
 
-        console.log(features)
         if (features.length > 0) {
             // Récupérer la géométrie (polygone) de l'entité
             const geometry = features[0].geometry;
@@ -355,52 +409,6 @@ export function rechercheMulticritere(dataForMap, critères) {
 }
 
 
-export function rechercheMulticriteres(dataForMap, id_couche, scale, dataAllIndicateur) {
-const filters=matchFilterIndicators(dataAllIndicateur);
-//export function rechercheMulticriteres(dataForMap, id_couche, scale, startYear, endYear, filters) {
-    return dataForMap.filter(objet => {
-       // const champAnnee = "Année financement";
-        // Vérifiez si le nom du département correspond
-        let correspondRegion = false;
-        if(objet[scale]){
-            correspondRegion = objet[scale].includes(id_couche);
-        }
-
-        // Vérifiez si l'année correspond à la période spécifiée
-       // const correspondAnnee = parseInt(objet[champAnnee]) >= startYear && parseInt(objet[champAnnee]) <= endYear;
-
-        // Vérifiez les critères de l'array filters
-        const critereIndicateur = filters.every(indicateur => {
-            if(indicateur==='theme'){
-                indicateur.data.every(valeur=>{
-                    if(objet["Thème d'intervention"].includes(valeur)){
-                        return true;
-                    }
-                })
-                return false;
-            }else{
-                const champIndicateur = indicateur.indicateur;
-                const valeursIndicateur = indicateur.data;
-
-                if (valeursIndicateur.length === 0) {
-                    return true; // Aucun critère à vérifier, donc l'objet est toujours inclus
-                }
-
-                // Vérifiez si l'objet a la propriété correspondant à l'indicateur
-                if (!objet.hasOwnProperty(champIndicateur)) {
-                    return false;
-                }
-
-                // Vérifiez si la valeur de l'objet correspond à l'une des valeurs de l'indicateur
-                return valeursIndicateur.includes(objet[champIndicateur]);
-                }
-        }); 
-
-        // Retournez true si tous les critères correspondent
-        //return correspondRegion && correspondAnnee && critereIndicateur;
-        return correspondRegion && critereIndicateur;
-    });
-}
 
 export function jsonToItem(data, title) {
     data = data[title].map((objet) => objet.key);
@@ -413,4 +421,347 @@ export function jsonToItem(data, title) {
 
 
 
+export function getSumSuperficy(data,scale){ // for now "Information generale" doesn't care about filter and date so we don't need to handle it here
+    if (!data || data.length === 0) {
+        return []; 
+    }
+
+    const superficyByRegion={};
+    for(const entry of data){
+        const region =entry[scale];
+        const superficy=typeof entry.SUPERFICIE==='number'? entry.SUPERFICIE : parseInt(entry.SUPERFICIE.replace(/\s/g, ''));
+        if(!superficyByRegion[region]) {
+            superficyByRegion[region] = superficy;
+        }else{
+            superficyByRegion[region] += superficy;
+        }
+    }
+
+    
+
+    const result = Object.entries(superficyByRegion).map(([key, value]) => ({
+        [scale]: key,
+        'value': value
+    }));
+
+    return result;
+
+}
+
+export function calculateTotalByRegion(data, startYear, endYear, scale, filters) {
+    if (!data || data.length === 0) {
+        return []; // Si data est vide, retourne un tableau vide
+    }
+
+    const areFiltersEmpty = filters.every(filter => filter.data.length === 0);
+
+    // Si tous les filtres sont vides, calculer la somme entre les deux dates sans filtre
+    if (areFiltersEmpty) {
+        const totalByRegion = {};
+
+        for (const entry of data) {
+            const region = entry[scale];
+            const totalString = (typeof entry.TOTAL === 'string' ? entry.TOTAL : '').replace(/,/g, '.').replace(/\D+/g, '');
+            const total = parseFloat(totalString);
+            const year = parseInt(entry.ANNEE);
+
+            if (!isNaN(total) && year >= startYear && year <= endYear) {
+                if (!totalByRegion[region]) {
+                    totalByRegion[region] = total;
+                } else {
+                    totalByRegion[region] += total;
+                }
+
+            }
+        }
+
+        const result = Object.entries(totalByRegion).map(([key, value]) => ({
+            [scale]: key,
+            'value': value
+        }));
+
+        return result;
+    }
+
+    // Sinon, appliquer les filtres spécifiés
+    const filteredData = data.filter(entry => {
+        return filters.every(filter => {
+            const filterKey = filter.indicateur;
+            const filterValues = filter.data;
+            const entryValue = entry[filterKey];
+            return (!filterKey || entryValue === undefined || filterValues.includes(entryValue));
+        });
+    });
+
+    // Calculer la somme des valeurs filtrées par région et entre les deux dates
+    const totalByRegion = {};
+
+    for (const entry of filteredData) {
+        const region = entry[scale];
+        const totalString = typeof entry.TOTAL === 'string' ? entry.TOTAL.replace(/\D+/g, '') : '0'; // Supprimer les caractères non numériques
+        const total = parseFloat(totalString);
+        const year = parseInt(entry.ANNEE);
+
+        if (!isNaN(total) && year >= startYear && year <= endYear) {
+            if (!totalByRegion[region]) {
+                totalByRegion[region] = total;
+            } else {
+                totalByRegion[region] += total;
+            }
+        }
+    }
+
+    const result = Object.entries(totalByRegion).map(([key, value]) => ({
+        [scale]: key,
+        'value': value
+    }));
+
+    return result;
+}
+
+export function transformDataForBarChart(data, region, startYear, endYear, id_level) {
+    // Filtrer les données pour la région et la plage d'années spécifiées
+    const filteredData = data.filter((entry) => entry[id_level] === region && parseInt(entry.ANNEE) >= startYear && parseInt(entry.ANNEE) <= endYear);
+
+    if (filteredData.length === 0) {
+        // Aucune donnée correspondante trouvée
+        return [];
+    }
+
+    // Créer un tableau d'objets pour chaque valeur ISP
+    const chartData = [];
+    for (let i = 1; i <= 4; i++) {
+        const ispValues = filteredData.map((entry) => {
+            const ispValue = entry[`ISP${i}`];
+
+            if (typeof ispValue === 'string') {
+                const cleanedValue = ispValue.replace(/,/g, '.').replace(/\s+/g, '');
+                const floatValue = parseFloat(cleanedValue);
+
+                return !isNaN(floatValue) ? floatValue : 0;
+            } else if (typeof ispValue === 'number') {
+                return ispValue;
+            } else {
+                return 0;
+            }
+        });
+
+
+        const ispValueSum = ispValues.reduce((acc, val) => acc + val, 0);
+
+
+        chartData.push({ x: `ISP${i}`, y: ispValueSum });
+
+    }
+
+    return chartData;
+}
+
+export function sortByAscendingOrder(arr, property) {
+    return arr.sort((a, b) => a[property] - b[property]);
+}
+
+export function rechercheMulticriteresPourFEICOM(dataForMap, id_couche, scale, startYear, endYear, dataAllIndicateur) {
+    return dataForMap.filter(objet => {
+        const champDepartement = scale;
+        const champAnnee = "Année financement";
+
+        // Vérifiez si le nom du département correspond
+        const correspondNomDepartement = objet[champDepartement] === id_couche;
+
+        // Vérifiez si l'année correspond à la période spécifiée
+        const correspondAnnee = parseInt(objet[champAnnee]) >= startYear && parseInt(objet[champAnnee]) <= endYear;
+
+        // Vérifiez les critères de l'array dataAllIndicateur
+        const critereIndicateur = dataAllIndicateur.every(indicateur => {
+            const champIndicateur = indicateur.indicateur;
+            const valeursIndicateur = indicateur.data;
+
+            if (valeursIndicateur.length === 0) {
+                return true; // Aucun critère à vérifier, donc l'objet est toujours inclus
+            }
+
+            // Vérifiez si l'objet a la propriété correspondant à l'indicateur
+            if (!objet.hasOwnProperty(champIndicateur)) {
+                return false;
+            }
+
+            // Vérifiez si la valeur de l'objet correspond à l'une des valeurs de l'indicateur
+            return valeursIndicateur.includes(objet[champIndicateur]);
+        });
+
+        // Retournez true si tous les critères correspondent
+        return correspondNomDepartement && correspondAnnee && critereIndicateur;
+    });
+}
+
+export function optionForBarChart(dataForBarChart, region) {
+    let optionsForChart = {
+        colors: ['#1A56DB'],
+        series: [{
+            name: region,
+            color: '#1A56DB',
+            data: dataForBarChart
+        }],
+        chart: {
+            type: 'bar',
+            height: 'auto',
+            fontFamily: 'Inter, sans-serif',
+            toolbar: {
+                show: false
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '70%',
+                borderRadiusApplication: 'end',
+                borderRadius: 8
+            }
+        },
+
+        tooltip: {
+            shared: true,
+            intersect: false,
+            style: {
+                fontFamily: 'Inter, sans-serif'
+            },
+            custom: function({ series, seriesIndex, dataPointIndex }) {
+                const formatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' });
+                const formattedValue = formatter.format(series[seriesIndex][dataPointIndex]);
+                return `<div class="text-center p-2">${formattedValue}</div>`;
+            }
+
+        },
+        states: {
+            hover: {
+                filter: {
+                    type: 'darken',
+                    value: 1
+                }
+            }
+        },
+        stroke: {
+            show: true,
+            width: 0,
+            colors: ['transparent']
+        },
+        grid: {
+            show: false,
+            strokeDashArray: 4,
+            padding: {
+                left: 2,
+                right: 2,
+                top: -14
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        legend: {
+            show: false
+        },
+        xaxis: {
+            floating: false,
+            labels: {
+                show: true,
+                style: {
+                    fontFamily: 'Inter, sans-serif',
+                    cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+                }
+            },
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false
+            }
+        },
+        yaxis: {
+            show: false
+        },
+        fill: {
+            opacity: 1
+        }
+    };
+
+    return optionsForChart;
+}
+
+export function optionForLineChart(label, data, geo) {
+
+    let optionsForChartLine = {
+        chart: {
+            height: 'auto',
+            maxWidth: '100%',
+            type: 'area',
+            fontFamily: 'Inter, sans-serif',
+            dropShadow: {
+                enabled: false
+            },
+            toolbar: {
+                show: false
+            }
+        },
+        tooltip: {
+            enabled: true,
+            x: {
+                show: false
+            },
+            custom: function({ series, seriesIndex, dataPointIndex }) {
+                const formatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' });
+                const formattedValue = formatter.format(series[seriesIndex][dataPointIndex]);
+                return `<div class="text-center p-2">${formattedValue}</div>`;
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                opacityFrom: 0.55,
+                opacityTo: 0,
+                shade: '#1C64F2',
+                gradientToColors: ['#1C64F2']
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            width: 6
+        },
+        grid: {
+            show: false,
+            strokeDashArray: 0,
+            padding: {
+                left: 20,
+                right: 10,
+                top: 0,
+                bottom: 0
+            }
+        },
+        series: [{
+            name: geo,
+            data: data,
+            color: '#1A56DB'
+        }],
+        xaxis: {
+            categories: label,
+            labels: {
+                show: true,
+                maxWidth: 1, // Spécifiez la largeur maximale pour les étiquettes de l'axe des Y
+            },
+
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false
+            }
+        },
+        yaxis: {
+            show: false
+        }
+    };
+    return optionsForChartLine;
+}
 

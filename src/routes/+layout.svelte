@@ -12,9 +12,13 @@
   import {
     dataStore,
     rangeValue,
-    rangeValueAccord,
     storeIndicateur,
     heightNavBar,
+    accordMode,
+    storeIndicateurICSP,
+    storeCommune,
+    storeAccordsBeneficiaire,
+    storeIcspCommune
   } from '../../shared/store.js';
   import { fetchData } from '../../shared/dataService.js';
 
@@ -82,7 +86,7 @@
   let dataArr: any[] = [];
   let communeData: never[] = [];
   let projetData: never[]=[];
-
+  let themeData: any[]=[];  
   let icspData: any[] = [];
 
   let valeursProjet: any[] = [];
@@ -259,20 +263,7 @@
     acronyme: string
   } []= [];
   
-
-  let themesFromSheet=[
-    "Renforcement des capacités/Compétences",
-    "Equipements de bureaux et matériels",
-    "Appui institutionnel/gouvernance",
-    "Environnement",
-    "Assainissement solide/liquide et drainage",
-    "Travaux d’Infrastructures urbaines structurantes",
-    "Travaux d’Infrastructures urbaines légères",
-    "Planification (urbaine, régional, transports etc.)",
-    "Etudes urbaines (Transports - mobilité - déchets - eau - assainissement)",
-    "Concertation (à tous les niveaux)",
-    "Outils numérique pour la gestion du territoire"
-  ];
+  
 
   
 
@@ -282,6 +273,7 @@
       const data = await fetchData();
       communeData=data.communeData;
       projetData=data.projetData;
+      themeData=data.themeData as any;
 
       // Mettre à jour les propriétés individuelles du store
       dataStore.update((store) => {
@@ -330,9 +322,6 @@
       appuiInstitutionnelItems = [...new Set(appuiInstitutionnelItems)];
 
       getFiltersItems();
-     
-      
-
       // Slider
       minMaxYearICSP = findMinMax(icspData, 'ANNEE');
       minMaxYearAccord = findMinMax(dataArr, 'Année financement');
@@ -340,7 +329,6 @@
       valueSliderAccord = [minMaxYearAccord.min, minMaxYearAccord.max];
       valueSlideICSP = [minMaxYearICSP.min, minMaxYearICSP.max];
       rangeValue.set(valueSlideICSP);
-      rangeValueAccord.set(valueSliderAccord);
 
       // Sélectionner l'élément du drawer par son identifiant
       const drawer = document.getElementById('sidebar');
@@ -351,21 +339,20 @@
         heightNavBar.set(navbarHeight);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
 
     loadData();
   });
 
   function getFiltersItems(){
-    valeursTheme= themesFromSheet
-    .sort()
+    valeursTheme= themeData
+    .sort((a,b)=> a.nom.localeCompare(b.nom))
     .map((item)=>({
-      key: item,
+      key: item.nom,
       checked: false,
-      id: null
-    }))
-
+      id: item.id_THEME
+    }));
     valeursInstitution= appuiInstitutionnelItems
     .sort((a, b) => a.localeCompare(b))
     .map((item)=>({
@@ -405,6 +392,10 @@
     dropdownSelectionBeneficiaireIndicateur.indicateur = beneficiaireIndicateur;
   }
   
+  function replaceKey(id, unique){
+    const index=unique.findIndex(item=>item.id===id);
+    return unique[index].key
+  }
   function getCommuneInfo(ids){
     let beneficiaires=[];
     const data: any=communeData;
@@ -488,12 +479,15 @@
   function updateSelectedWords(
     array: { indicateur: string; data: never[] } | undefined,
     unique: any[],
-    option = false
   ) {
     update = true;
     //@ts-ignore
     setTimeout(() => {
-      array.data = unique.filter((unique) => unique.checked).map((unique) => unique.key);
+      if(array.indicateur===themeIndicateur){
+        array.data = unique.filter((unique) => unique.checked).map((unique) => unique.id);
+      }else{
+        array.data = unique.filter((unique) => unique.checked).map((unique) => unique.key);
+      }
       const existingIndicateurIndex = arrayAllIndicateurs.findIndex(
         (item) => item.indicateur === array.indicateur
       );
@@ -567,8 +561,6 @@
     valueSlideICSP = [minSliderICSP, maxSliderICSP];
     //@ts-ignore
     rangeValue.set(valueSlideICSP);
-    //@ts-ignore
-    rangeValueAccord.set(valueSliderAccord);
 
     activeUrl = $page.url.pathname;
     let spanClass = 'pl-2 self-center text-md text-gray-900 dark:text-white';
@@ -842,15 +834,15 @@
                 <div class="px-2 pt-1 pb-2">
                   {#each arrayAllIndicateurs as indicateur}
                     {#if indicateur.indicateur === dropdownSelectionThemeIndicateur.indicateur}
-                      {#each indicateur.data as word (word)}
+                      {#each indicateur.data as id (id)}
                         <div 
                           class={selectedItemStyle}
                         >
-                          {word}
+                          {(replaceKey(id,valeursTheme))} 
                           <CloseButton
                             on:click={() =>
                               closeDiv(
-                                word,
+                                replaceKey(id,valeursTheme),
                                 dropdownSelectionThemeIndicateur,
                                 valeursTheme,
                               )}

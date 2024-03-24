@@ -239,7 +239,7 @@
 { "type": "Feature", "properties": { "name": "Douala IV", "ref:COG": "LT0104" }, "geometry": { "type": "Point", "coordinates": [ 9.629089671493213, 4.073907704732237 ] } },
 { "type": "Feature", "properties": { "name": "Yingui", "ref:COG": "LT0302" }, "geometry": { "type": "Point", "coordinates": [ 10.343125074696722, 4.440467682089231 ] } },
 { "type": "Feature", "properties": { "name": "Yabassi", "ref:COG": "LT0301" }, "geometry": { "type": "Point", "coordinates": [ 10.003852817065846, 4.397500350004644 ] } },
-{ "type": "Feature", "properties": { "name": "Ndobian", "ref:COG": "LT0304" }, "geometry": { "type": "Point", "coordinates": [ 10.328331126767122, 4.959787554694231 ] } },
+{ "type": "Feature", "properties": { "name": "Ndobian", "ref:COG": "LT0304_ERR" }, "geometry": { "type": "Point", "coordinates": [ 10.328331126767122, 4.959787554694231 ] } },
 { "type": "Feature", "properties": { "name": "Nkondjock", "ref:COG": "LT0304" }, "geometry": { "type": "Point", "coordinates": [ 10.183051440358755, 4.79572754258114 ] } },
 { "type": "Feature", "properties": { "name": "Bonaléa", "ref:COG": "LT0212" }, "geometry": { "type": "Point", "coordinates": [ 9.677294091004509, 4.327570954150405 ] } },
 { "type": "Feature", "properties": { "name": "Dibombari", "ref:COG": "LT0203" }, "geometry": { "type": "Point", "coordinates": [ 9.594128731340961, 4.187009778634706 ] } },

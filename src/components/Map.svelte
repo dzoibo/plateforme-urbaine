@@ -3,14 +3,13 @@
   import {
     dataStore,
     rangeValue,
-    rangeValueAccord,
     storeIndicateur,
     heightNavBar
   } from '../../shared/store';
   import {
     findMinMax,
     formattedValue,
-    rechercheMulticriteres,
+    rechercheMulticriteresPourProjet,
     fetchIdCommunesFromCommunesID,
     calculateTotalProjetByRegion,
     getOverallBbox
@@ -49,7 +48,7 @@
   let width;
   let dataForMap = [];
   let communeData = [];
-  let projetData= [];
+  let themeData =[];
   let keyCommuneID_Commune = [];
   let projetPerRegion=[];
   let MinMax = {};
@@ -155,9 +154,8 @@
     unsubscribe = dataStore.subscribe((store) => {
       communeData = store.communeData;
       keyCommuneID_Commune = store.keyCommuneID_Commune;
-      projetData = store.projetData;
-      dataForMap= projetData;
-
+      dataForMap = store.projetData;
+      themeData=store.themeData
     });
 
     // Récupération de la data provenant de layout.svete
@@ -172,10 +170,6 @@
       storeIndicateurForMap = $storeIndicateur;
     });
 
-    // Récupération de la data provenant de layout.svete
-    rangeValueAccord.subscribe(($rangeValueAccord) => {
-      valueSliderAccord = $rangeValueAccord;
-    });
 
     // Récupération de la data provenant de layout.svete
     heightNavBar.subscribe(($heightNavBar) => {
@@ -226,7 +220,7 @@
         scale = 'id_COMMUNE';
         toggleLayer('com');
       }
-      projetPerRegion=calculateTotalProjetByRegion(projetData,scale,storeIndicateurForMap);
+      projetPerRegion=calculateTotalProjetByRegion(dataForMap,scale,storeIndicateurForMap);
       MinMax = findMinMax(projetPerRegion, 'value');
 
 
@@ -303,11 +297,6 @@
   */
   function clearFilterBeforeToggleZoom(layer){
     if(getbbox!==[]){
-      if(theme==='icsp'){
-        storeIcspCommune.set(false);
-      }else if (theme==='accord'){
-        storeAccordsBeneficiaire.set(false);
-      }
       updateGetBox('');
       setTimeout(() => {
         toggleLayer(layer);

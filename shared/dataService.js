@@ -4,15 +4,21 @@ import Papa from "papaparse";
 
 export async function fetchData() {
 
-    const commune = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjD-pVg7fmwAN9jdpvkHYprUqvtw3b3ONw3_Q_BtzelSCgzg1ZIO23RM5m6zNParkGKzZaKfFo25Gv/pub?gid=1931056354&single=true&output=tsv';
+    const commune = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=961481301&single=true&output=tsv'
+    const mandat='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=647677433&single=true&output=tsv';
+    const icsp ='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=1383280162&single=true&output=tsv';
+    const projet = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=218804066&single=true&output=tsv';
+    const theme='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=1383280162&single=true&output=tsv';
 
-    const projet = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjD-pVg7fmwAN9jdpvkHYprUqvtw3b3ONw3_Q_BtzelSCgzg1ZIO23RM5m6zNParkGKzZaKfFo25Gv/pub?gid=241696036&single=true&output=tsv';
-
-    const [communeData, projetData] = await Promise.all([
+    const [communeData, projetData,mandatData,icspData,themeData] = await Promise.all([
         fetchDataFromSheet(commune),
-        fetchDataFromSheet(projet)
+        fetchDataFromSheet(projet),
+        fetchDataFromSheet(mandat),
+        fetchDataFromSheet(icsp),
+        fetchDataFromSheet(theme),
+
     ]); 
-    return {communeData, projetData};
+    return {communeData, projetData,mandatData,icspData,themeData};
 }
 
 // @ts-ignore
