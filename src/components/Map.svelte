@@ -477,7 +477,7 @@
     <Tabs style="full" class="space-x-0 w-full flex !flex-nowrap bg-white">
       
       {#if allProject.length>0}
-        <TabItem open class="w-full " id="projets">
+        <TabItem open class="card-tab-item w-full " id="projets">
           <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
             <GridSolid size="md" />
             Liste des projets
@@ -547,7 +547,7 @@
       {/if}
       
       
-      <TabItem class="w-full" open>
+      <TabItem class="card-tab-item w-full" open>
         <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
           <LandmarkOutline size="md" />
           Informations sur le territoire
