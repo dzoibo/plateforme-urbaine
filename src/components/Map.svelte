@@ -4,7 +4,9 @@
     dataStore,
     rangeValue,
     storeIndicateur,
-    heightNavBar
+    heightNavBar,
+    storeWrapper
+
   } from '../../shared/store';
   import {
     findMinMax,
@@ -114,7 +116,7 @@
   let toolTipStyle="bg-white text-black font-normal z-10";
   let generalInfoItemStyle="flex items-center gap-1 mb-2 text-sm font-medium text-gray-900 dark:text-white";
   let generalInfoValueStyle="ml-1 text-xs text-gray-500 truncate dark:text-gray-400";
-  
+  let displayWrapper=true;
   
   let dataForBarChart = {};
   let dataForLineChart = {};
@@ -223,6 +225,9 @@
       storeIndicateurForMap = $storeIndicateur;
     });
 
+    storeWrapper.subscribe(($wrapper) => {
+      displayWrapper = $wrapper;
+    });
 
     // Récupération de la data provenant de layout.svete
     heightNavBar.subscribe(($heightNavBar) => {
@@ -323,6 +328,7 @@
       scale,
       storeIndicateurForMap
     );
+    map.style.zIndex =20;
     hiddenBackdropFalse=false;
   }
 
@@ -454,6 +460,18 @@
 </script>
 
 <svelte:window bind:innerWidth={width} />
+{#if displayWrapper===true}
+  <div 
+    on:click={()=>{storeWrapper.update(() => {
+      return false
+    });}}
+    class=" hidden z-[10] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">
+    <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
+      <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
+    </svg>
+  </div>
+{/if}
+
 <Drawer
   placement="right"
   style="top:{heightNavBarForSideBar}px"
@@ -464,7 +482,17 @@
   bind:hidden={hiddenBackdropFalse}
   id="sidebar6"
 >
+
   <div class="bg-[#00862b14] div-wrapper" style="height:{heightSideBar}px !important">
+
+    <div
+      on:click={()=>{hiddenBackdropFalse=true}}
+      class="flex z-50 justify-center items-center hover:bg-gray-200 rounded-md absolute w-[31px] h-[31px] bg-white left-1 border border-gray-200 top-6 sm:hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
+        <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
+      </svg>
+    </div>
+
     <div class="w-full p-4 text-center">
       <h2 class="my-2 text-center text-black poppins text-3xl font-extrabold w-full">
               {#if showCom }
@@ -488,7 +516,7 @@
             </h5>
           </div>
 
-          <div class="my-2 flex w-full justify-center text-lg items-center gap-2">
+          <div class="my-2 pt-4 flex w-full justify-center text-lg items-center gap-2">
             Nombre de projets
             <h5
               id="stat"

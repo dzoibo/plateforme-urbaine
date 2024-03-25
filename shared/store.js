@@ -17,3 +17,4 @@ export const scaleStore= writable('id_REGION');
 export const storeCommune= writable('');
 export const storeAccordsBeneficiaire= writable(true);
 export const storeIcspCommune= writable(true);
+export const storeWrapper= writable(false);
