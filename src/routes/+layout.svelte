@@ -636,22 +636,23 @@
     filterIndicators.bailleur=false;
     filterIndicators.institution=false;
   }
-
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
 
-<Navbar id="myNavbar" let:hidden let:toggle class="navbar">
-  <NavHamburger
-    onClick={toggleDrawer}
-    btnClass="ml-3"
-    class="{drawerHidden == true ? 'rotate-90' : ''} mx-none  justify-none"
-    style="display:block"
-  />
-  
-</Navbar>
+
+
 
 {#if !loadingData}
+  {#if drawerHidden}
+    <div
+      on:click={toggleDrawer}
+      class="flex z-[49] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
+        <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
+      </svg>
+    </div>
+  {/if}
   <Drawer
     style="top: {navbarHeight}px !important; width:{sidebarWidth}rem !important;"
     transitionType="fly"
@@ -662,7 +663,14 @@
     class="overflow-y-auto pb-32 !p-0 sidebar"
     id="sidebar"
   >
-    <div class="h-full w-full bg-[#00862b14]">
+    <div class="h-full w-full bg-[#00862b14] ">
+      <div 
+        on:click={toggleDrawer}
+        class="flex border border-gray-100 justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] right-0.5 top-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="gray" height="22" viewBox="0 -960 960 960" width="22">
+          <path d="M440-240 200-480l240-240 56 56-183 184 183 184-56 56Zm264 0L464-480l240-240 56 56-183 184 183 184-56 56Z"/>
+        </svg>
+      </div>
       <Sidebar asideClass="w-54">
         <!-- Bouton Reset Filter -->
         <div class="w-full bg-white flex flex-col items-center gap-3 py-4 mb-3" >
@@ -676,7 +684,9 @@
             <SidebarGroup class={cardForSideBar}>
               <SidebarDropdownWrapper  label="Selon un projet">
                 <svelte:fragment slot="icon">
-                  <BuildingOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" class="fill-gray-500 transition duration-75 dark:fill-gray-400 hover:fill-gray-900">
+                    <path d="M756-120 537-339l84-84 219 219-84 84Zm-552 0-84-84 276-276-68-68-28 28-51-51v82l-28 28-121-121 28-28h82l-50-50 142-142q20-20 43-29t47-9q24 0 47 9t43 29l-92 92 50 50-28 28 68 68 90-90q-4-11-6.5-23t-2.5-24q0-59 40.5-99.5T701-841q15 0 28.5 3t27.5 9l-99 99 72 72 99-99q7 14 9.5 27.5T841-701q0 59-40.5 99.5T701-561q-12 0-24-2t-23-7L204-120Z"/>
+                  </svg>
                   {#if filterIndicators.nom && !filterCheckedAll.nom}
                     <div class={filterIndicatorStyle} ></div>
                   {/if}
@@ -741,7 +751,10 @@
             <SidebarGroup class={cardForSideBar}>
               <SidebarDropdownWrapper  label="Selon un thème">
                 <svelte:fragment slot="icon">
-                  <UsersGroupOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-500 transition duration-75 dark:fill-gray-400 hover:fill-gray-900" height="24" viewBox="0 -960 960 960" width="24">
+                    <path d="M240-320h320v-80H240v80Zm0-160h480v-80H240v80Zm-80 320q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H447l-80-80H160v480Zm0 0v-480 480Z"/>
+                  </svg>
+                  
                   {#if filterIndicators.theme && !filterCheckedAll.theme}
                     <div class={filterIndicatorStyle} ></div>
                   {/if}
@@ -895,7 +908,7 @@
             <SidebarGroup class={cardForSideBar}>
               <SidebarDropdownWrapper  label="Selon une institution">
                 <svelte:fragment slot="icon">
-                  <LandmarkOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  <BuildingOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
                   {#if filterIndicators.institution && !filterCheckedAll.institution}
                     <div class={filterIndicatorStyle} ></div>
                   {/if}
@@ -1063,7 +1076,7 @@
   </Drawer>
 {:else}
   <div class="flex items-center justify-center h-screen">
-    <Spinner color="green" size={12} />
+    <Spinner color="custom" class="fill-orange-400" size=12 />
   </div>
 {/if}
 

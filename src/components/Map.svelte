@@ -547,7 +547,7 @@
       {/if}
       
       
-      <TabItem class="card-tab-item w-full" open>
+      <TabItem class="card-tab-item w-full" >
         <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
           <LandmarkOutline size="md" />
           Informations sur le territoire
