@@ -6,19 +6,19 @@ export async function fetchData() {
 
     const commune = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=961481301&single=true&output=tsv'
     const mandat='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=647677433&single=true&output=tsv';
-    const icsp ='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=1383280162&single=true&output=tsv';
+    const icsp ='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=962052684&single=true&output=tsv';
     const projet = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=218804066&single=true&output=tsv';
     const theme='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=1383280162&single=true&output=tsv';
-
-    const [communeData, projetData,mandatData,icspData,themeData] = await Promise.all([
+    const region='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=583846364&single=true&output=tsv';
+    const [communeData, projetData,mandatData,icspData,themeData,regionData] = await Promise.all([
         fetchDataFromSheet(commune),
         fetchDataFromSheet(projet),
         fetchDataFromSheet(mandat),
         fetchDataFromSheet(icsp),
         fetchDataFromSheet(theme),
-
+        fetchDataFromSheet(region),
     ]); 
-    return {communeData, projetData,mandatData,icspData,themeData};
+    return {communeData, projetData,mandatData,icspData,themeData,regionData};
 }
 
 // @ts-ignore

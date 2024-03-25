@@ -360,7 +360,11 @@ export function sortByDescendingOrder(arr, property) {
 
 
 export function formattedValue(value) {
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    if(value!==undefined && value !== null){
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }else{
+        return "";
+    }
 }
 
 export function rechercheMulticritere(dataForMap, critères) {

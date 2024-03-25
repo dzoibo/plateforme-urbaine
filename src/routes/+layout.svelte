@@ -268,18 +268,19 @@
   
 
   onMount(async function () {
-    
     try {
       const data = await fetchData();
       communeData=data.communeData;
       projetData=data.projetData;
       themeData=data.themeData as any;
-
       // Mettre à jour les propriétés individuelles du store
       dataStore.update((store) => {
         loadingData = false;
         store.communeData = communeData;
-        store.projetData = projetData
+        store.projetData = projetData;
+        store.mandatData = data.mandatData;
+        store.regionData = data.regionData;
+        store.icspData = data.icspData;
         return store;
       });
       
@@ -324,7 +325,7 @@
       getFiltersItems();
       // Slider
       minMaxYearICSP = findMinMax(icspData, 'ANNEE');
-      minMaxYearAccord = findMinMax(dataArr, 'Année financement');
+     // minMaxYearAccord = findMinMax(dataArr, 'Année financement');
 
       valueSliderAccord = [minMaxYearAccord.min, minMaxYearAccord.max];
       valueSlideICSP = [minMaxYearICSP.min, minMaxYearICSP.max];
@@ -555,6 +556,8 @@
     } else {
       maxSliderICSP = minSliderICSP;
     }
+    
+
 
     valueSliderAccord = [minSliderValue, maxSliderValue];
     valueSlideICSP = [minSliderICSP, maxSliderICSP];
