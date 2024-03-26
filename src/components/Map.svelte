@@ -788,45 +788,7 @@
                 {#await optionForLineChart(dataForLineChart.data.label, dataForLineChart.data.data) then options}
                   <Chart {options} />
                 {/await}
-              </Card>
-            {/if}
-          {/await}
-        </div>
-        <div class="p-4 lg:w-full sm:w-full flex justify-center">
-          {#await dataForBarChart then}
-            {#if dataForBarChart.data}
-              <Card class="!max-w-md w-full">
-                <div
-                  class="w-full h-full flex justify-center items-center pb-4 mb-4 border-b border-gray-200 dark:border-gray-700"
-                >
-                  <div class="flex items-center">
-                    <div
-                      class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center me-3"
-                    >
-                      <CashOutline class="w-6 h-6 text-gray-500 dark:text-gray-400" />
-                    </div>
-                    <div>
-                      <h5
-                        class="leading-none text-2xl font-bold text-gray-900 dark:text-white pb-1 poppins-medium"
-                      >
-                        ICSP pour le territoire : {dataForBarChart.geo}
-                      </h5>
-                      <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                        <dt class="text-gray-500 dark:text-gray-400 text-sm font-normal me-1">
-                          Total ICSP pour la période {dataForBarChart.year} :
-                        </dt>
-                        <dd class="text-gray-900 text-sm dark:text-white font-semibold">
-                          {formattedValue(dataForBarChart.sum)} FCFA
-                        </dd>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {#await optionForBarChart(changeItemToDisplay(dataForBarChart.data)) then options}
-                  <!-- Utilisation de h-auto pour que la hauteur s'adapte au contenu -->
-                  <Chart {options} />
-                {/await}
+                <div class=" text-black text-base font-semibold">Impôts Soumis à Péréquations (source : FEICOM) </div>
               </Card>
             {/if}
           {/await}
