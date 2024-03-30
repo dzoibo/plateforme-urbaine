@@ -18,7 +18,8 @@
     storeIndicateurICSP,
     storeCommune,
     storeAccordsBeneficiaire,
-    storeIcspCommune
+    storeIcspCommune,
+    storeWrapper
   } from '../../shared/store.js';
   import { fetchData } from '../../shared/dataService.js';
 
@@ -77,9 +78,7 @@
   let backdrop: boolean = false;
   let drawerHidden = true;
   let activateClickOutside = true;
-
   let navbarHeight = 0;
-
   let sidebarWidth = 20;
   let marginRight = sidebarWidth; // Valeur initiale de la marge droite
 
@@ -264,7 +263,7 @@
   } []= [];
   
   
-
+  
   
 
   onMount(async function () {
@@ -422,10 +421,15 @@
       drawerHidden = true;
       activateClickOutside = false;
     }
+    storeWrapper.subscribe(($wrapper) => {
+      drawerHidden = $wrapper;
+    });
   });
 
   const toggleDrawer = () => {
-    drawerHidden = !drawerHidden;
+    storeWrapper.update(() => {
+      return !drawerHidden;
+    });
     if (drawerHidden) {
       marginRight = 0;
     } else {
@@ -434,10 +438,8 @@
   };
 
   $: if (width >= breakPoint) {
-    drawerHidden = false;
     activateClickOutside = false;
   } else {
-    drawerHidden = false;
     activateClickOutside = false;
   }
 
@@ -644,7 +646,7 @@
 
 
 {#if !loadingData}
-  {#if drawerHidden}
+  {#if drawerHidden && window.innerWidth > 600}
     <div
       on:click={toggleDrawer}
       class="flex z-[49] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">

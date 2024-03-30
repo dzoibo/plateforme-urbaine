@@ -58,7 +58,10 @@
     NewspapperOutline,
     LinkOutline,
     EnvelopeOutline,
-    MapPinAltSolid
+    MapPinAltSolid,
+
+    InboxFullOutline
+
   } from 'flowbite-svelte-icons';
   import {
     MapLibre,
@@ -233,7 +236,7 @@
     heightNavBar.subscribe(($heightNavBar) => {
       heightNavBarForSideBar = $heightNavBar;
     });
-
+    
   });
 
   // Sélectionnez l'élément du drawer par son identifiant
@@ -241,7 +244,6 @@
 
   // Reactivité
   $: {
-    
     let selectedCommune = [];
     if (showCom) {
       scale = 'id_COMMUNE';
@@ -460,17 +462,6 @@
 </script>
 
 <svelte:window bind:innerWidth={width} />
-{#if displayWrapper===true}
-  <div 
-    on:click={()=>{storeWrapper.update(() => {
-      return false
-    });}}
-    class=" hidden z-[10] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">
-    <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
-      <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
-    </svg>
-  </div>
-{/if}
 
 <Drawer
   placement="right"
@@ -835,6 +826,19 @@
         <div id="com-tooltip">
           <ControlButton id="com" class={showCom ? 'bg-gray-200 rounded-bl rounded-br' : ''} on:click={() => toggleLayer('com')}>COM</ControlButton>
         </div>
+
+        {#if displayWrapper===true &&  window.innerWidth <= 600}
+            <ControlButton id="com" 
+              class={showCom ? 'bg-gray-200 border border-gray-00 rounded-bl rounded-br' : ''}
+              on:click={()=>{storeWrapper.update(() => {
+                return false
+              });}}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
+                <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
+              </svg>  
+            </ControlButton>
+        {/if}
       </ControlGroup>
     </Control>
 
