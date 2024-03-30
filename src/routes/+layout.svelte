@@ -18,7 +18,8 @@
     storeIndicateurICSP,
     storeCommune,
     storeAccordsBeneficiaire,
-    storeIcspCommune
+    storeIcspCommune,
+    storeWrapper
   } from '../../shared/store.js';
   import { fetchData } from '../../shared/dataService.js';
 
@@ -422,10 +423,15 @@
       drawerHidden = true;
       activateClickOutside = false;
     }
+    storeWrapper.subscribe(($wrapper) => {
+      drawerHidden = $wrapper;
+    });
   });
 
   const toggleDrawer = () => {
-    drawerHidden = !drawerHidden;
+    storeWrapper.update(() => {
+      return !drawerHidden;
+    });
     if (drawerHidden) {
       marginRight = 0;
     } else {
@@ -434,10 +440,8 @@
   };
 
   $: if (width >= breakPoint) {
-    drawerHidden = false;
     activateClickOutside = false;
   } else {
-    drawerHidden = false;
     activateClickOutside = false;
   }
 
@@ -644,7 +648,7 @@
 
 
 {#if !loadingData}
-  {#if drawerHidden}
+  {#if drawerHidden }
     <div
       on:click={toggleDrawer}
       class="flex z-[49] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">
