@@ -143,9 +143,6 @@
   let layer='reg';
   let lastLayerUpdateTime='0';
 
-  let geojsonProjetLineCentroid;
-  let geojsonProjetPolygonCentroid;
-  let geojsonProjetPointCentroid;
 
   let paintProperties = {
     'fill-opacity': hoverStateFilter(0.7, 0.4),
@@ -195,15 +192,6 @@
 
     const responseMunicipalite = await fetch('./data/limite_municipalite_centroide.geojson');
     geojsonMunicipaliteCentroid = await responseMunicipalite.json();
-
-    const responseProjetLine= await fetch('./data/projet/projet_line.geojson');
-    geojsonProjetLineCentroid = await responseProjetLine.json();
-
-    const responseProjetPolygon= await fetch('./data/projet/projet_polygon.geojson');
-    geojsonProjetPolygonCentroid = await responseProjetPolygon.json();
-
-    const responseProjetPoint= await fetch('./data/projet/projet_point.geojson');
-    geojsonProjetPointCentroid = await responseProjetPoint.json()
 
 
 
@@ -845,7 +833,33 @@
     <GeoJSON data="/data/mask.geojson">
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
+    <GeoJSON data="/data/projet/projet_line.geojson'">
+      <LineLayer 
+      paint={{
+        'line-color': 'blue',
+        'line-width': 2,
+        'line-opacity': 0.9
+      }}
+      />
+    </GeoJSON>
 
+    <!-- <GeoJSON data="/data/projet/projet_polygon.geojson">
+      <FillLayer 
+      paint={{
+        'fill-color': 'green',
+        'fill-opacity': 0.9
+      }}
+      />
+    </GeoJSON> -->
+
+    <GeoJSON data="./data/projet/projet_point.geojson">
+      <FillLayer 
+      paint={{
+        'fill-color': 'red',
+        'fill-opacity': 0.9
+      }}
+      />
+    </GeoJSON>
     {#if showReg}
       <VectorTileSource url="pmtiles://data/regions.pmtiles" id="regions" promoteId="ref:COG">
         <FillLayer
