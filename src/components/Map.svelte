@@ -483,78 +483,8 @@
     </div>
     <Tabs style="full" class="space-x-0 w-full flex !flex-nowrap bg-white">
       
-      {#if allProject.length>0}
-        <TabItem open class="card-tab-item w-full " id="projets">
-          <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
-            <GridSolid size="md" />
-            Liste des projets
-            <h5
-              id="historique"
-              class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
-            >
-            </h5>
-          </div>
-
-          <div class="my-2 pt-4 flex w-full justify-center text-lg items-center gap-2">
-            Nombre de projets
-            <h5
-              id="stat"
-              class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
-            >
-            </h5>
-          </div>
-          <div class="p-4 w-full justify-center overflow-x-auto">
-            <ul class=" px-8 w-full flex flex-col items-center">
-              {#each allProject  as projet}
-                <Card class="leading-[20px] mb-4 !max-w-md w-full">
-                  <Listgroup class="border-0 dark:!bg-transparent ">
-                    <div class="flex items-center space-x-1 rtl:space-x-reverse">
-                      <div class="flex-1 min-w-0">
-
-                        <div>
-                          <span class="text-sm font-bold text-gray-900 dark:text-white">
-                            Acronyme :
-                          </span>
-                          <span class="text-[13px] font-medium">{projet['Acronyme']}</span>
-                        </div>
-
-                        <div>
-                          <span class="text-sm font-bold text-gray-900 dark:text-white">
-                            Nom :
-                          </span>
-                          <span class="text-[13px] font-medium">{projet['Nom']}</span>
-                        </div>
-
-                        <div>
-                          <span class="text-sm font-bold text-gray-900 dark:text-white">
-                            Bailleur(s) :
-                          </span>
-                          <span class="text-[13px] font-medium">{projet['Bailleur(s)']}</span>
-                        </div>
-
-                        {#each Object.entries(projet) as [key, value]}
-                          {#if !attributsToHide.includes(key) && value !==null }
-                            <div>
-                              <span class="text-sm font-bold text-gray-900 dark:text-white">
-                                {key} :
-                              </span>
-                              <span class="text-[13px] font-medium">{value}</span>
-                            </div>
-                          {/if}
-                        {/each}
-
-                      </div>
-                    </div>
-                  </Listgroup>
-                </Card>
-              {/each}
-            </ul>
-          </div>
-        </TabItem>
-      {/if}
-      
-      
-      <TabItem class="card-tab-item w-full" >
+       
+      <TabItem open class="card-tab-item w-full" >
         <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
           <LandmarkOutline size="md" />
           Informations sur le territoire
@@ -565,7 +495,7 @@
           </h5>
         </div>
         <div id="detailMandatForAMunicipality" class="p-3 list-none flex flex-col items-center h-full" >
-          <div class="my-2 flex w-full justify-center text-lg items-center gap-2">
+          <div class="my-2 flex w-full justify-center text-base items-center gap-2">
             <InfoCircleOutline size="sm" />
             Informations générales
             <h5
@@ -726,7 +656,7 @@
         <Tooltip triggeredBy="#stat" type="auto">
           Statistique des ICSP dans le temps pour un territoire choisi
         </Tooltip>
-        <div class="my-2 flex w-full justify-center text-lg items-center gap-2">
+        <div class="my-2 flex w-full justify-center text-base items-center gap-2">
           <GridSolid size="sm" />
           Stats des ICSP
           <h5
@@ -773,7 +703,76 @@
           {/await}
         </div>
       </TabItem>
+      {#if allProject.length>0}
+        <TabItem open class="card-tab-item w-full " id="projets">
+          <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
+            <GridSolid size="md" />
+            Liste des projets
+            <h5
+              id="historique"
+              class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
+            >
+            </h5>
+          </div>
 
+          <div class="my-2 pt-4 flex w-full justify-center text-base items-center gap-2">
+            Nombre de projets
+            <h5
+              id="stat"
+              class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
+            >
+            </h5>
+          </div>
+          <div class="p-4 w-full justify-center overflow-x-auto">
+            <ul class=" px-8 w-full flex flex-col items-center">
+              {#each allProject  as projet}
+                <Card class="leading-[20px] mb-4 !max-w-md w-full">
+                  <Listgroup class="border-0 dark:!bg-transparent ">
+                    <div class="flex items-center space-x-1 rtl:space-x-reverse">
+                      <div class="flex-1 min-w-0">
+
+                        <div>
+                          <span class="text-sm font-bold text-gray-900 dark:text-white">
+                            Acronyme :
+                          </span>
+                          <span class="text-[13px] font-medium">{projet['Acronyme']}</span>
+                        </div>
+
+                        <div>
+                          <span class="text-sm font-bold text-gray-900 dark:text-white">
+                            Nom :
+                          </span>
+                          <span class="text-[13px] font-medium">{projet['Nom']}</span>
+                        </div>
+
+                        <div>
+                          <span class="text-sm font-bold text-gray-900 dark:text-white">
+                            Bailleur(s) :
+                          </span>
+                          <span class="text-[13px] font-medium">{projet['Bailleur(s)']}</span>
+                        </div>
+
+                        {#each Object.entries(projet) as [key, value]}
+                          {#if !attributsToHide.includes(key) && value !==null }
+                            <div>
+                              <span class="text-sm font-bold text-gray-900 dark:text-white">
+                                {key} :
+                              </span>
+                              <span class="text-[13px] font-medium">{value}</span>
+                            </div>
+                          {/if}
+                        {/each}
+
+                      </div>
+                    </div>
+                  </Listgroup>
+                </Card>
+              {/each}
+            </ul>
+          </div>
+        </TabItem>
+      {/if}
+    
     </Tabs>
   </div>
 </Drawer>
@@ -923,6 +922,7 @@
         }}
         sourceLayer="municipalites"
       />
+
       <FillLayer
         paint={paintProperties}
         manageHoverState
@@ -962,7 +962,7 @@
             'text-opacity': 1,
             'text-halo-color': '#eee',
             'text-halo-width': 0.5,
-            'text-halo-blur': 0.5
+            'text-halo-blur': 0.5 
           }}
           layout={{
             'text-allow-overlap': false,
