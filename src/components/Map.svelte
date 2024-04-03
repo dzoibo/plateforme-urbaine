@@ -225,6 +225,7 @@
       heightNavBarForSideBar = $heightNavBar;
     });
     
+    
   });
 
   // Sélectionnez l'élément du drawer par son identifiant
@@ -788,6 +789,9 @@
     on:zoomend={({ detail: { map } }) => (currentZoom = map.getZoom())}
     bind:map
     bind:loaded
+    images={[
+      { id: 'travaux', url: 'img/travaux-routiers.png' },
+    ]}
     on:zoom={()=>toggleLayerOnZoom()}
     class="w-screen"
   >
@@ -832,32 +836,48 @@
     <GeoJSON data="/data/mask.geojson">
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
-    <GeoJSON data="/data/projet/projet_line.geojson'">
+    
+    <GeoJSON data="/data/projet/projet_line.geojson">
+     
       <LineLayer 
-      paint={{
-        'line-color': 'blue',
-        'line-width': 2,
-        'line-opacity': 0.9
-      }}
+        paint={{
+          'line-color': 'blue',
+          'line-width': 2,
+          'line-opacity': 0.9
+        }}
+      />
+      
+    </GeoJSON>
+
+    <GeoJSON data="/data/projet/projet_polygon.geojson">
+      <FillLayer 
+        paint={{
+          'fill-color': 'red',
+          'fill-opacity': 0.9
+        }}
       />
     </GeoJSON>
 
-    <!-- <GeoJSON data="/data/projet/projet_polygon.geojson">
-      <FillLayer 
-      paint={{
-        'fill-color': 'green',
-        'fill-opacity': 0.9
-      }}
-      />
-    </GeoJSON> -->
-
     <GeoJSON data="./data/projet/projet_point.geojson">
+      
       <FillLayer 
-      paint={{
-        'fill-color': 'red',
-        'fill-opacity': 0.9
-      }}
+        paint={{
+          'fill-color': 'red',
+          'fill-opacity': 0.9
+        }}
       />
+
+      <SymbolLayer
+        applyToClusters={false}
+        hoverCursor="pointer"
+        layout={{
+          'icon-image':'travaux',
+          'icon-size': 1, // Taille du marqueur (1 signifie 100% de la taille d'origine)
+          'icon-offset': [0, -15], // Décalage vertical du marqueur pour l'aligner correctement
+          'icon-allow-overlap': true
+        }}
+      />
+
     </GeoJSON>
     {#if showReg}
       <VectorTileSource url="pmtiles://data/regions.pmtiles" id="regions" promoteId="ref:COG">

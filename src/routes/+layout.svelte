@@ -977,8 +977,6 @@
                           />
                         </div>
                       {/each}
-                    {:else}
-                      {indicateur.indicateur}: == : dropdownSelectionInstitutionIndicateur.indicateur
                     {/if}
                   {/each}
                 </div>
