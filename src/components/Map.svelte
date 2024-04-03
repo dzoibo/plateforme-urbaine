@@ -125,7 +125,7 @@
   let dataForLineChart = {};
   let optionsForChart = {};
   let optionsForChartLine = {};
-
+  let showProjetName =false;
   let heightSideBar;
   // START EXTRACT
   let map = maplibregl.Map | undefined;
@@ -143,7 +143,7 @@
   let layer='reg';
   let lastLayerUpdateTime='0';
 
-
+  let clickedFeature;
   let paintProperties = {
     'fill-opacity': hoverStateFilter(0.7, 0.4),
     'fill-color': [
@@ -275,6 +275,10 @@
   }
 
   function handleLayerClick(e) {
+    if(showProjetName){
+      return false;
+    }
+
     clickedLayerInfo=e
     if (showCom) {
       nom_commune = e.detail.features[0].properties['ref:COG'];
@@ -436,12 +440,49 @@
     return formalizedData
   }
 
-  function displayItemValue(value) {
+  /* function displayItemValue(value) {
     if (value == null) {
       return `<span class="text-[15px] italic">Non disponible</span>`;
     } else {
       return `<span class="text-[15px] font-medium">${value}</span>`;
     }
+  } */
+
+   // Fonction pour afficher un popup lorsque l'utilisateur clique sur une caractéristique
+   function showSymbolPopup(e) {
+      showProjetName=true;
+      var coordinates = e.detail.features[0].geometry.coordinates.slice();
+      var description = e.detail.features[0].properties.Name; // Remplacez 'description' par le nom de votre propriété contenant les informations du popup
+
+      // Créez un popup personnalisé
+      new maplibregl.Popup()
+          .setLngLat(coordinates)
+          .setHTML(description)
+          .addTo(map);
+
+      setTimeout(() => {
+        showProjetName=false;
+      }, 500);
+  }
+
+  // Fonction pour afficher un popup lorsque l'utilisateur clique sur une caractéristique
+  function showPopup(e) {
+    showProjetName=true;
+    var coordinates = e.detail.event.lngLat;
+    var description = e.detail.features[0].properties.Name; // Remplacez 'description' par le nom de votre propriété contenant les informations du popup
+    if(description===undefined){
+      description = e.detail.features[0].properties.description;
+    }
+    // Créez un popup personnalisé
+    new maplibregl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(description)
+        .addTo(map);
+    
+    setTimeout(() => {
+      showProjetName=false;
+    }, 500);
+
   }
 
   // On se désabonne pour éviter les fuites de data
@@ -836,36 +877,42 @@
     <GeoJSON data="/data/mask.geojson">
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
-    
-    <GeoJSON data="/data/projet/projet_line.geojson">
-     
+
+    <GeoJSON data="/data/projet/projet_line.geojson">    
       <LineLayer 
         paint={{
           'line-color': 'blue',
           'line-width': 2,
           'line-opacity': 0.9
         }}
+        on:click={showPopup}
       />
       
     </GeoJSON>
 
     <GeoJSON data="/data/projet/projet_polygon.geojson">
       <FillLayer 
+
+        on:click={(e) => (clickedFeature = e.detail.feature)}
+
         paint={{
           'fill-color': 'red',
           'fill-opacity': 0.9
         }}
-      />
+
+        on:click={showPopup}
+    >
+      <Popup openOn="hover" closeOnClickInside  >
+        <p>
+          voici donc ca mon chaud...
+        </p>
+      </Popup>
+    </FillLayer>
+
     </GeoJSON>
 
     <GeoJSON data="./data/projet/projet_point.geojson">
       
-      <FillLayer 
-        paint={{
-          'fill-color': 'red',
-          'fill-opacity': 0.9
-        }}
-      />
 
       <SymbolLayer
         applyToClusters={false}
@@ -876,6 +923,7 @@
           'icon-offset': [0, -15], // Décalage vertical du marqueur pour l'aligner correctement
           'icon-allow-overlap': true
         }}
+        on:click={showSymbolPopup}
       />
 
     </GeoJSON>
