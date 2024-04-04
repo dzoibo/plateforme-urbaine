@@ -830,7 +830,7 @@
     bind:map
     bind:loaded
     images={[
-      { id: 'travaux', url: 'img/travaux-routiers.png' },
+      { id: 'travaux', url: 'travaux-routiers.png' },
     ]}
     on:zoom={()=>toggleLayerOnZoom()}
     class="w-screen"
