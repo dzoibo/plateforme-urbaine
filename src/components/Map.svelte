@@ -80,7 +80,6 @@
     GeoJSON,
     MarkerLayer,
     SymbolLayer,
-    Popup
   } from 'svelte-maplibre';
   import maplibregl from 'maplibre-gl';
   import { onMount, onDestroy } from 'svelte';
@@ -902,11 +901,7 @@
 
         on:click={showPopup}
     >
-      <Popup openOn="hover" closeOnClickInside  >
-        <p>
-          voici donc ca mon chaud...
-        </p>
-      </Popup>
+     
     </FillLayer>
 
     </GeoJSON>
