@@ -372,7 +372,8 @@
     valeursProjet = projetsUnique
     .sort((a, b) => a.nom.localeCompare(b.nom))
     .map((item)=>({
-      key: item.nom,
+      key: item.nom ,
+      displayName: item.nom + " ("+item.acronyme+")",
       acronyme: item.acronyme,
       checked: false,
       id: null
@@ -588,6 +589,7 @@
   }
 
   const handleInput = (event,data,filter) => {
+    
     const value = event.target.value;
     const searchResult= data.filter((item) =>
       item.toLowerCase().match(value.toLowerCase())
@@ -617,6 +619,7 @@
    function filterList(listItem, searchResult) {
     return searchResult.length === 0 || searchResult.includes(listItem.key);
   }
+
 
   // Fonction pour réinitialiser les filtres et vider les dropdowns
   function resetFilters() {
@@ -649,7 +652,7 @@
   {#if drawerHidden && window.innerWidth > 600}
     <div
       on:click={toggleDrawer}
-      class="flex z-[49] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[75px]">
+      class="flex z-[49] justify-center items-center hover:bg-gray-200 rounded-md cursor-pointer bg-white absolute w-[31px] h-[31px] left-2 top-[100px]">
       <svg xmlns="http://www.w3.org/2000/svg" height="22" fill="gray" viewBox="0 -960 960 960" width="22">
         <path d="M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z"/>
       </svg>
@@ -710,7 +713,7 @@
                     />
                   </div>
                   {#each valeursProjet as projet}
-                    {#if filterList(projet,projetSearchResult)}
+                    {#if projetSearchResult.length === 0 || projetSearchResult.includes(projet.displayName) }
                       <li class={listItemStyle}>
                         <Checkbox class={projetIndicateur+"-checkbox"}
                           checked={projet.checked}
@@ -719,8 +722,12 @@
                               projet,
                               dropdownSelectionProjetIndicateur,
                               valeursProjet,
-                            )}>{projet.key}</Checkbox
-                        >
+                            )}> 
+                            <div>
+                              {projet.key} 
+                              <span class="font-semibold text-sm" >{#if projet.acronyme !== null} {'('+projet.acronyme+')'} {/if} </span>
+                            </div>
+                        </Checkbox>
                       </li>
                     {/if}
                   {/each}

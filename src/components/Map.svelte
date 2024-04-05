@@ -95,6 +95,7 @@
   let projetPerRegion=[];
   let MinMax = {};
   let geojsonRegionCentroid;
+  let geojsonDepartementCentroid;
   let geojsonMunicipaliteCentroid;
   let unsubscribe;
   let nom_commune;
@@ -113,8 +114,9 @@
   let getbbox = [];
   let heightNavBarForSideBar;
   let sidebarId;
+  let showReg = true ;
   let showCom = false;
-  let showReg = true;
+  let showDep = false ;
   let toolTipStyle="bg-white text-black font-normal z-10";
   let generalInfoItemStyle="flex items-center gap-1 mb-2 text-sm font-medium text-gray-900 dark:text-white";
   let generalInfoValueStyle="ml-1 text-xs text-gray-500 truncate dark:text-gray-400";
@@ -188,6 +190,8 @@
     const response = await fetch('./data/limite_region_centroide.geojson');
     geojsonRegionCentroid = await response.json();
 
+    const responseDepartement = await fetch('./data/limite_departement_centroide.geojson');
+    geojsonDepartementCentroid = await responseDepartement.json();
 
     const responseMunicipalite = await fetch('./data/limite_municipalite_centroide.geojson');
     geojsonMunicipaliteCentroid = await responseMunicipalite.json();
@@ -236,9 +240,12 @@
     if (showCom) {
       scale = 'id_COMMUNE';
       toggleLayer('com');
-    } else {
+    } else if (showReg) {
       scale = 'id_REGION';
       toggleLayer('reg');
+    } else {
+      scale = 'id_DEPARTEMENT';
+      toggleLayer('dep');
     }
 
     if (sidebarId) {
@@ -383,17 +390,21 @@
     }
   } 
 
-   //automalticaly change the scale
+  //automalticaly change the scale
   function toggleLayerOnZoom(){
     const currentTime = Date.now();
     let tempLayer=layer;
     if(currentZoom>previousZoom){
-      if(currentZoom>=5.75 && !showCom){
+      if(currentZoom>5.1 && showReg ){
+        tempLayer ='dep';
+      }else if(currentZoom>=6 && showDep){
         tempLayer='com';
       }
     }else{
-      if(currentZoom<5.75 && !showReg){
+      if(currentZoom<5.1 && !showReg){
         tempLayer='reg';
+      }else if(currentZoom<6 && showCom ){
+        tempLayer='dep';
       }
     }
     if(currentTime-lastLayerUpdateTime<1000 && layer===tempLayer){
@@ -402,13 +413,17 @@
       layer=tempLayer;
       lastLayerUpdateTime=Date.now();
       toggleLayer(layer);
+      
       previousZoom=currentZoom;
     }
     
   }
+
   function toggleLayer(layer) {
     showReg = layer === 'reg' ? true : false;
+    showDep = layer === 'dep' ? true : false;
     showCom = layer === 'com' ? true : false;
+    
     // Supprimez la classe "active" de tous les boutons
     const buttons = document.querySelectorAll('.maplibregl-ctrl-icon');
     buttons.forEach((button) => {
@@ -480,7 +495,7 @@
     
     setTimeout(() => {
       showProjetName=false;
-    }, 500);
+    }, 1000);
 
   }
 
@@ -846,9 +861,15 @@
         <Tooltip triggeredBy="#reg-tooltip" class={toolTipStyle} placement ='right' >
           Échelle régionale
         </Tooltip>
-        
         <div id="reg-tooltip">
           <ControlButton id="reg" class={showReg ? 'bg-gray-200' : ''} on:click={() => clearFilterBeforeToggleZoom('reg')}>REG</ControlButton>
+        </div>
+
+        <Tooltip triggeredBy="#dep-tooltip" class={toolTipStyle} placement ='right' >
+          Échelle départementale
+        </Tooltip>
+        <div id="dep-tooltip">
+          <ControlButton id="dep" class={showDep ? 'bg-gray-200' : ''} on:click={() => clearFilterBeforeToggleZoom('dep')}>DEP</ControlButton>
         </div>
 
         <Tooltip triggeredBy="#com-tooltip" class={toolTipStyle} placement ='right' >
@@ -877,51 +898,49 @@
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
 
-    <GeoJSON data="/data/projet/projet_line.geojson">    
-      <LineLayer 
-        paint={{
-          'line-color': 'blue',
-          'line-width': 2,
-          'line-opacity': 0.9
-        }}
-        on:click={showPopup}
-      />
-      
-    </GeoJSON>
+    {#if currentZoom>=8}
+      <GeoJSON data="/data/projet/projet_line.geojson">    
+        <LineLayer 
+          paint={{
+            'line-color': 'blue',
+            'line-width': currentZoom>=9?2:1,
+            'line-opacity': 0.9
+          }}
+        />
+        
+      </GeoJSON>
 
-    <GeoJSON data="/data/projet/projet_polygon.geojson">
-      <FillLayer 
+      <GeoJSON data="/data/projet/projet_polygon.geojson">
 
-        on:click={(e) => (clickedFeature = e.detail.feature)}
+        <FillLayer 
+          on:click={(e) => (clickedFeature = e.detail.feature)}
 
-        paint={{
-          'fill-color': 'red',
-          'fill-opacity': 0.9
-        }}
+          paint={{
+            'fill-color': 'red',
+            'fill-opacity': 0.9
+          }}
+          on:click={showPopup}
+        >
+        </FillLayer>
+      </GeoJSON>
 
-        on:click={showPopup}
-    >
-     
-    </FillLayer>
+      <GeoJSON data="./data/projet/projet_point.geojson">
+        <SymbolLayer
+          applyToClusters={false}
+          hoverCursor="pointer"
+          layout={{
+            'icon-image':'travaux',
+            'icon-size': currentZoom>=9?1:0.5, // Taille du marqueur (1 signifie 100% de la taille d'origine)
+            'icon-offset': [0, -15], // Décalage vertical du marqueur pour l'aligner correctement
+            'icon-allow-overlap': true
+          }}
+          on:click={showSymbolPopup}
+        />
 
-    </GeoJSON>
-
-    <GeoJSON data="./data/projet/projet_point.geojson">
-      
-
-      <SymbolLayer
-        applyToClusters={false}
-        hoverCursor="pointer"
-        layout={{
-          'icon-image':'travaux',
-          'icon-size': 1, // Taille du marqueur (1 signifie 100% de la taille d'origine)
-          'icon-offset': [0, -15], // Décalage vertical du marqueur pour l'aligner correctement
-          'icon-allow-overlap': true
-        }}
-        on:click={showSymbolPopup}
-      />
-
-    </GeoJSON>
+      </GeoJSON>
+    {/if}
+    
+    
     {#if showReg}
       <VectorTileSource url="pmtiles://data/regions.pmtiles" id="regions" promoteId="ref:COG">
         <FillLayer
@@ -958,8 +977,47 @@
         </MarkerLayer>
       </GeoJSON>
     {/if}
-    
 
+    {#if showDep}
+      <VectorTileSource url="pmtiles://data/departements.pmtiles" promoteId="ref:COG">
+        <JoinedData data={projetPerRegion} idCol="id_DEPARTEMENT" sourceLayer="departements" />
+
+        <FillLayer
+          hoverCursor="pointer"
+          paint={paintProperties}
+          manageHoverState
+          sourceLayer="departements"
+          on:click={handleLayerClick}
+        />
+
+        <LineLayer
+          paint={{
+            'line-opacity': 1,
+            'line-width': 1,
+            'line-color': 'gray'
+          }}
+          sourceLayer="departements"
+        />
+      </VectorTileSource>
+
+      <GeoJSON data={geojsonDepartementCentroid} promoteId="ref:COG">
+        <JoinedData data={projetPerRegion} idCol="id_DEPARTEMENT" />
+        <MarkerLayer let:feature>
+          {#each projetPerRegion as { id_REGION, value }}
+            {#if feature.properties['ref:COG'] === id_REGION}
+              <div class="bg-gray-100 text-xs bg-opacity-50 bg-trans rounded-full p-2 shadow align flex flex-col items-center">
+                <div class="poppins-medium">{feature.properties.name}</div>
+                ---
+                <div class="poppins-light">NOMBRE DE PROJET(S): {formattedValue(value)}</div>
+              </div>
+            {/if}
+          {/each}
+        </MarkerLayer>
+      </GeoJSON>
+
+    {/if}
+
+    
     <VectorTileSource
       url="pmtiles://data/municipalites.pmtiles"
       id="municipalites"
@@ -1015,7 +1073,7 @@
         sourceLayer="municipalites"
       />
     </VectorTileSource>
-
+    
     {#if showCom}
       <GeoJSON data={geojsonMunicipaliteCentroid} promoteId="ref:COG">
         <JoinedData data={projetPerRegion} idCol="id_COMMUNE" />

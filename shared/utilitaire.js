@@ -124,6 +124,8 @@ export function calculateTotalProjetByRegion(data, scale,filters) {
         if(entry [scale]===null){
             continue;
         }
+        console.log("this is the scale",scale);
+        console.log("entry", entry[scale]);
         const regionProjet=  entry[scale].split(",");
         for(const region of regionProjet){
             if(totalByRegion[region]){
@@ -391,7 +393,12 @@ export function rechercheMulticritere(dataForMap, critères) {
 
 
 export function jsonToItem(data, title) {
-    data = data[title].map((objet) => objet.key);
+
+    if(title==='valeursProjet'){
+        data = data[title].map((objet) => objet.displayName);
+    }else{
+        data = data[title].map((objet) => objet.key);
+    }
 
     // Supprimez les espaces avant le texte et triez par ordre alphabétique
     data = data.map((item) => item.trim()).sort((a, b) => a.localeCompare(b, 'fr'));
