@@ -124,8 +124,6 @@ export function calculateTotalProjetByRegion(data, scale,filters) {
         if(entry [scale]===null){
             continue;
         }
-        console.log("this is the scale",scale);
-        console.log("entry", entry[scale]);
         const regionProjet=  entry[scale].split(",");
         for(const region of regionProjet){
             if(totalByRegion[region]){

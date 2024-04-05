@@ -395,15 +395,15 @@
     const currentTime = Date.now();
     let tempLayer=layer;
     if(currentZoom>previousZoom){
-      if(currentZoom>5.1 && showReg ){
+      if(currentZoom>6 && showReg ){
         tempLayer ='dep';
-      }else if(currentZoom>=6 && showDep){
+      }else if(currentZoom>=7 && showDep){
         tempLayer='com';
       }
     }else{
-      if(currentZoom<5.1 && !showReg){
+      if(currentZoom<6 && !showReg){
         tempLayer='reg';
-      }else if(currentZoom<6 && showCom ){
+      }else if(currentZoom<7 && showCom ){
         tempLayer='dep';
       }
     }
@@ -465,6 +465,7 @@
    // Fonction pour afficher un popup lorsque l'utilisateur clique sur une caractéristique
    function showSymbolPopup(e) {
       showProjetName=true;
+      hiddenBackdropFalse=true;
       var coordinates = e.detail.features[0].geometry.coordinates.slice();
       var description = e.detail.features[0].properties.Name; // Remplacez 'description' par le nom de votre propriété contenant les informations du popup
 
@@ -477,11 +478,13 @@
       setTimeout(() => {
         showProjetName=false;
       }, 500);
+
   }
 
   // Fonction pour afficher un popup lorsque l'utilisateur clique sur une caractéristique
   function showPopup(e) {
     showProjetName=true;
+    hiddenBackdropFalse=true;
     var coordinates = e.detail.event.lngLat;
     var description = e.detail.features[0].properties.Name; // Remplacez 'description' par le nom de votre propriété contenant les informations du popup
     if(description===undefined){
