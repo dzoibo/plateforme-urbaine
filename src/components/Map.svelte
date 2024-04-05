@@ -901,7 +901,7 @@
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
 
-    {#if currentZoom>=8}
+    {#if currentZoom>=8 && showCom}
       <GeoJSON data="/data/projet/projet_line.geojson">    
         <LineLayer 
           paint={{
@@ -1017,7 +1017,6 @@
           {/each}
         </MarkerLayer>
       </GeoJSON>
-
     {/if}
 
     
