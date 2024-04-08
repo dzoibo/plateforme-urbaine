@@ -106,8 +106,14 @@ export function getSumPerYear(data, startYear, endYear, scale) {
 
 
 
-//export function calculateTotalProjetByRegion(data, startYear, endYear, scale, filters) {
 export function calculateTotalProjetByRegion(data, scale,filters) {
+    let end = 6;
+    /**
+     * Ici on va du principe que dans notre googleSheet les l'id de la commune est constituée à partir
+     * du departement et l'id du departement est constitué à partir de l'id de la Region
+     * Et on partira toujours sur la commune pour avoir le departement ainsi que la region, on s'arretera à 2 pour une region, 4 pour departement et 6 par default est pour une commune
+     */
+     
     if (!data || data.length === 0) {
         return []; // Si data est vide, retourne un tableau vide
     }
@@ -119,21 +125,30 @@ export function calculateTotalProjetByRegion(data, scale,filters) {
     }else{
         dataToUse = data;
     }
-    const totalByRegion = {};
+    const totalPerDivision = {}; 
+    if (scale ==='id_REGION'){
+        end = 2;
+    }else if(scale ==='id_DEPARTEMENT') {
+        end = 4;
+    }
+    
     for (const entry of dataToUse) {
-        if(entry [scale]===null){
+        if(entry ["id_COMMUNE"]===null){
             continue;
         }
-        const regionProjet=  entry[scale].split(",");
-        for(const region of regionProjet){
-            if(totalByRegion[region]){
-                totalByRegion[region]++;
+        const  communeIdList = entry['id_COMMUNE'].split(",")
+                               .map(id => id.substring(0,end))
+                               .filter((id, index, array) => array.indexOf(id) === index);
+        for(const id of communeIdList){
+            const derivedId= id.substring(0,end);
+            if(totalPerDivision[derivedId]){
+                totalPerDivision[derivedId]++;
             }else{
-                totalByRegion[region] = 1
+                totalPerDivision[derivedId] = 1
             }
         }
     }
-    const result = Object.entries(totalByRegion).map(([key, value]) => ({
+    const result = Object.entries(totalPerDivision).map(([key, value]) => ({
         [scale]: key,
         'value': value
     }));

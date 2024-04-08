@@ -395,13 +395,13 @@
     const currentTime = Date.now();
     let tempLayer=layer;
     if(currentZoom>previousZoom){
-      if(currentZoom>6 && showReg ){
+      if(currentZoom>5.5 && showReg ){
         tempLayer ='dep';
       }else if(currentZoom>=7 && showDep){
         tempLayer='com';
       }
     }else{
-      if(currentZoom<6 && !showReg){
+      if(currentZoom<5.5 && !showReg){
         tempLayer='reg';
       }else if(currentZoom<7 && showCom ){
         tempLayer='dep';
@@ -775,7 +775,7 @@
           </div>
 
           <div class="my-2 pt-4 flex w-full justify-center text-base items-center gap-2">
-            Nombre de projets
+            Nombre de projets : {allProject.length}
             <h5
               id="stat"
               class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
@@ -1006,8 +1006,8 @@
       <GeoJSON data={geojsonDepartementCentroid} promoteId="ref:COG">
         <JoinedData data={projetPerRegion} idCol="id_DEPARTEMENT" />
         <MarkerLayer let:feature>
-          {#each projetPerRegion as { id_REGION, value }}
-            {#if feature.properties['ref:COG'] === id_REGION}
+          {#each projetPerRegion as { id_DEPARTEMENT, value }}
+            {#if feature.properties['ref:COG'] === id_DEPARTEMENT}
               <div class="bg-gray-100 text-xs bg-opacity-50 bg-trans rounded-full p-2 shadow align flex flex-col items-center">
                 <div class="poppins-medium">{feature.properties.name}</div>
                 ---
