@@ -87,6 +87,7 @@
   let width;
   let dataForMap = [];
   let communeData = [];
+  let departementData = [];
   let regionData =[];
   let mandatData =[];
   let icspData = [];
@@ -200,6 +201,7 @@
 
     unsubscribe = dataStore.subscribe((store) => {
       communeData = store.communeData;
+      departementData = store.departementData;
       icspData = store.icspData;
       keyCommuneID_Commune = store.keyCommuneID_Commune;
       dataForMap = store.projetData;
@@ -287,13 +289,12 @@
 
     clickedLayerInfo=e
     if (showCom) {
-      nom_commune = e.detail.features[0].properties['ref:COG'];
       detailsMandatCommune = findAllObjectsByAttribute(mandatData, 'id_COMMUNE', nom_commune);
       anneeDebutMandat = sortByDescendingOrder(detailsMandatCommune, 'DEBUT MANDAT');
       anneeFinMandat = sortByDescendingOrder(detailsMandatCommune, 'FIN MANDAT');
       const indexCommune = communeData.findIndex((commune)=>commune.id_COMMUNE === e.detail.features[0].properties['ref:COG']) 
       currentGeneralInfo=communeData[indexCommune];
-    }else{
+    }else if(showReg){
       const indexRegion = regionData.findIndex((region)=>region.id_REGION === e.detail.features[0].properties['ref:COG']);
       currentGeneralInfo=regionData[indexRegion];
       const indexSuperficy = superficyPerRegion.findIndex((region)=>region.id_REGION === e.detail.features[0].properties['ref:COG']);
@@ -302,26 +303,28 @@
         superficy: superficyPerRegion[indexSuperficy].value
       }
     }
-    // Set the variable with information about the clicked layer
-    // Set hiddenBackdropFalse to false to show the Drawer
-    const region = e.detail.features[0].properties['ref:COG'];
-    const label_reg = e.detail.features[0].properties.name;
-    dataForBarChart.data = transformDataForBarChart(
-      icspData,
-      region,
-      valueSliderICSP[0],
-      valueSliderICSP[1],
-      scale
-    );
-    dataForLineChart.data = sumISPValues(icspData, region, scale);
-    dataForBarChart.year = valueSliderICSP[0] + ' / ' + valueSliderICSP[1];
-    dataForLineChart.geo = label_reg;
-    dataForBarChart.geo = label_reg;
-    // Calcul de la somme des valeurs "y"
-    dataForBarChart.sum = dataForBarChart.data.reduce(
-      (total, currentItem) => total + currentItem.y,
-      0
-    );
+    if(!showDep){
+       // Set the variable with information about the clicked layer
+      // Set hiddenBackdropFalse to false to show the Drawer
+      const region = e.detail.features[0].properties['ref:COG'];
+      const label_reg = e.detail.features[0].properties.name;
+      dataForBarChart.data = transformDataForBarChart(
+        icspData,
+        region,
+        valueSliderICSP[0],
+        valueSliderICSP[1],
+        scale
+      );
+      dataForLineChart.data = sumISPValues(icspData, region, scale);
+      dataForBarChart.year = valueSliderICSP[0] + ' / ' + valueSliderICSP[1];
+      dataForLineChart.geo = label_reg;
+      dataForBarChart.geo = label_reg;
+      // Calcul de la somme des valeurs "y"
+      dataForBarChart.sum = dataForBarChart.data.reduce(
+        (total, currentItem) => total + currentItem.y,
+        0
+      );
+    }
     nom_commune = e.detail.features[0].properties['ref:COG'];
     allProject = rechercheMulticriteresPourProjet(
       dataForMap,
@@ -521,7 +524,7 @@
   id="sidebar6"
 >
 
-  <div class="bg-[#00862b14] div-wrapper" style="height:{heightSideBar}px !important">
+  <div class="bg-[#00862b14] div-wrapper !min-h-full" >
 
     <div
       on:click={()=>{hiddenBackdropFalse=true}}
@@ -535,6 +538,8 @@
       <h2 class="my-2 text-center text-black poppins text-3xl font-extrabold w-full">
               {#if showCom }
                 Commune: {clickedLayerInfo.detail.features[0].properties.name}
+              {:else if showDep}
+                Département: {clickedLayerInfo.detail.features[0].properties.name}
               {:else}
                 Région: {currentGeneralInfo["nom_REGION"]}
               {/if}
@@ -542,226 +547,228 @@
     </div>
     <Tabs style="full" class="space-x-0 w-full flex !flex-nowrap bg-white">
       
-       
-      <TabItem open class="card-tab-item w-full" >
-        <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
-          <LandmarkOutline size="md" />
-          Informations sur le territoire
-          <h5
-            id="historique"
-            class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
-          >
-          </h5>
-        </div>
-        <div id="detailMandatForAMunicipality" class="p-3 list-none flex flex-col items-center h-full" >
-          <div class="my-2 flex w-full justify-center text-base items-center gap-2">
-            <InfoCircleOutline size="sm" />
-            Informations générales
+      {#if !showDep}
+        <TabItem open class="card-tab-item w-full" >
+          <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">
+            <LandmarkOutline size="md" />
+            Informations sur le territoire
             <h5
-              id="stat"
+              id="historique"
               class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
             >
             </h5>
           </div>
-          
-          <Card padding="md" class="leading-[24px] mb-4 mt-3 !max-w-md w-full">
-            
-            {#if showCom && anneeFinMandat}
-              <dl
-                class="max-w-screen-xl gap-8 p-2 mx-auto text-gray-900  dark:text-white sm:p-8"
+          <div id="detailMandatForAMunicipality" class="p-3 list-none flex flex-col items-center h-full" >
+            <div class="my-2 flex w-full justify-center text-base items-center gap-2">
+              <InfoCircleOutline size="sm" />
+              Informations générales
+              <h5
+                id="stat"
+                class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
               >
-                {#if anneeFinMandat[0].SUPERFICIE}
-                  <div class="flex items-center justify-center">
-                    <dt class="ml-1 text-3xl font-bold w-full poppins-medium text-center">
-                      {formattedValue(anneeFinMandat[0].SUPERFICIE) || ''}
-                    </dt>
-                    <dd class="text-gray-500 ml-1 dark:text-gray-400">km²</dd>
-                  </div>
-                {/if}
-                {#if anneeFinMandat[0].POPULATION}
-                  <div class="flex items-center justify-center">
-                    <dt class="ml-1 text-3xl font-bold w-full text-center">
-                      {formattedValue(anneeFinMandat[0].POPULATION) || ''}
-                    </dt>
-                    <dd class="text-gray-500 ml-1 dark:text-gray-400">Habitants</dd>
-                  </div>
-                {/if}
-              </dl>
+              </h5>
+            </div>
+            
+            <Card padding="md" class="leading-[24px] mb-4 mt-3 !max-w-md w-full">
+              
+              {#if showCom && anneeFinMandat}
+                <dl
+                  class="max-w-screen-xl gap-8 p-2 mx-auto text-gray-900  dark:text-white sm:p-8"
+                >
+                  {#if anneeFinMandat[0].SUPERFICIE}
+                    <div class="flex items-center justify-center">
+                      <dt class="ml-1 text-3xl font-bold w-full poppins-medium text-center">
+                        {formattedValue(anneeFinMandat[0].SUPERFICIE) || ''}
+                      </dt>
+                      <dd class="text-gray-500 ml-1 dark:text-gray-400">km²</dd>
+                    </div>
+                  {/if}
+                  {#if anneeFinMandat[0].POPULATION}
+                    <div class="flex items-center justify-center">
+                      <dt class="ml-1 text-3xl font-bold w-full text-center">
+                        {formattedValue(anneeFinMandat[0].POPULATION) || ''}
+                      </dt>
+                      <dd class="text-gray-500 ml-1 dark:text-gray-400">Habitants</dd>
+                    </div>
+                  {/if}
+                </dl>
 
+                <Card class="mb-2 !px-1 !max-w-xl  w-full">
+                  <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {#each anneeFinMandat as detailMandat}
+                      {#if detailMandat['FIN MANDAT'] === anneeFinMandat[0]['FIN MANDAT']}
+                        <li class=" py-1 sm:py-2">
+                          <div class="flex items-start">
+                            <div class="leading-3 flex-1 min-w-0 ms-4 mr-4">
+                              <p class={generalInfoItemStyle} >
+                                <UserOutline class="text-gray-700" size="sm" />
+                                Maire: 
+                                <span class={generalInfoValueStyle} >{detailMandat["CONSEILLER"]}</span>
+                              </p>
+                              <p class={generalInfoItemStyle}>  
+                                <UsersOutline class="text-gray-700" size="sm" />
+                                Adjoints Au maire: 
+                                <span class={generalInfoValueStyle} >
+                                  {detailMandat["Nombre des adjoints aux Maires"]} 
+                                </span>
+                              </p>
+                              <p class={generalInfoItemStyle}>
+                                <UsersGroupOutline class="text-gray-700" size="sm" />
+                                Conseillers Municipaux: 
+                                <span class={generalInfoValueStyle} >
+                                  {detailMandat["Nombre de conseillers municipaux"]} 
+                                </span>
+                              </p>
+                              <p class={generalInfoItemStyle} >
+                                <MailBoxOutline class="text-gray-700"  size="sm" />
+                                BP :  
+                                <span class={generalInfoValueStyle} >{currentGeneralInfo["Boîte postale de la Mairie"]}</span> 
+                              </p>
+
+                              {#if currentGeneralInfo["Email mairie"]}
+                                <p class={generalInfoItemStyle} >
+                                  <EnvelopeOutline class="text-gray-700"  size="sm" />
+                                  Adresse email :  
+                                  <span class={generalInfoValueStyle} >
+                                    <a href="mailto:{currentGeneralInfo["Email mairie"]}">{currentGeneralInfo["Email mairie"]}</a>
+                                  </span> 
+                                </p>
+                              {/if}
+
+                              {#if currentGeneralInfo["Longitude"] &&  currentGeneralInfo["Latitude"] }
+                                <p class={generalInfoItemStyle} >
+                                  <MapPinAltSolid class="text-gray-700"  size="sm" />
+                                  Coordonnées(long, lat) :  
+                                  <span class={generalInfoValueStyle}> {currentGeneralInfo["Longitude"]} ;  {currentGeneralInfo["Latitude"]}</span> 
+                                </p>
+                              {/if}
+
+                              {#if currentGeneralInfo["Site Web de la Mairie"] !==null}
+                                <p class={generalInfoItemStyle} >
+                                  <LinkOutline size="sm" />
+                                  Site web:
+                                  <span class={"cursor-pointer "+generalInfoValueStyle} on:click={()=>{
+                                    window.open("https://"+currentGeneralInfo["Site Web de la Mairie"],"_blank");
+                                  }} > {currentGeneralInfo["Site Web de la Mairie"]}</span>
+                                </p>
+                              {/if}
+                              <p class={generalInfoItemStyle}>
+                                <NewspapperOutline class="text-gray-700"  size="sm" />
+                                Date de création: 
+                                <span class={generalInfoValueStyle} >{currentGeneralInfo["Annee de creation"]}</span> 
+                              </p>
+
+                            </div>
+                            
+                            <div
+                              class="text-sm font-semibold text-gray-900 dark:text-white"
+                            >
+                              <Badge color="green" rounded class="px-3.5 py-0.5">
+                                {detailMandat.PARTI || ''}
+                              </Badge>
+                            </div>
+                          </div>
+                        </li>
+                      {/if}
+                    {/each}
+                  </ul>
+                </Card> 
+              {:else if (showReg)}
+              <dl
+              class="max-w-screen-xl gap-8 p-2 mx-auto text-gray-900  dark:text-white sm:p-8"
+                  >
+                <div class="flex items-center justify-center">
+                  <dt class="ml-1 text-3xl font-bold poppins-medium w-full text-center">
+                    {formattedValue(currentGeneralInfo.superficy)|| ''}
+                  </dt>
+                  <dd class="text-gray-500 ml-1 dark:text-gray-400">km²</dd>
+                </div>
+              </dl>
               <Card class="mb-2 !px-1 !max-w-xl  w-full">
                 <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                  {#each anneeFinMandat as detailMandat}
-                    {#if detailMandat['FIN MANDAT'] === anneeFinMandat[0]['FIN MANDAT']}
-                      <li class=" py-1 sm:py-2">
-                        <div class="flex items-start">
-                          <div class="leading-3 flex-1 min-w-0 ms-4 mr-4">
-                            <p class={generalInfoItemStyle} >
-                              <UserOutline class="text-gray-700" size="sm" />
-                              Maire: 
-                              <span class={generalInfoValueStyle} >{detailMandat["CONSEILLER"]}</span>
-                            </p>
-                            <p class={generalInfoItemStyle}>  
-                              <UsersOutline class="text-gray-700" size="sm" />
-                              Adjoints Au maire: 
-                              <span class={generalInfoValueStyle} >
-                                {detailMandat["Nombre des adjoints aux Maires"]} 
-                              </span>
-                            </p>
-                            <p class={generalInfoItemStyle}>
-                              <UsersGroupOutline class="text-gray-700" size="sm" />
-                              Conseillers Municipaux: 
-                              <span class={generalInfoValueStyle} >
-                                {detailMandat["Nombre de conseillers municipaux"]} 
-                              </span>
-                            </p>
-                            <p class={generalInfoItemStyle} >
-                              <MailBoxOutline class="text-gray-700"  size="sm" />
-                              BP :  
-                              <span class={generalInfoValueStyle} >{currentGeneralInfo["Boîte postale de la Mairie"]}</span> 
-                            </p>
+                  <li class=" py-1 sm:py-2">
+                    <div class="flex items-start" >
+                      <div class="leading-3 flex-1 min-w-0 ms-4 mr-4">
+                        <p class={generalInfoItemStyle} >
+                          <UserOutline class="text-gray-700" size="sm" />
+                          President conseil: 
+                          <span class={generalInfoValueStyle} >{currentGeneralInfo["nom_president"]}</span>
+                        </p>
+                        <p class={generalInfoItemStyle}>  
+                          <UsersOutline class="text-gray-700" size="sm" />
+                          1er Vice President: 
+                          <span class={generalInfoValueStyle} >
+                            {currentGeneralInfo["nom_vice_president1"]} 
+                          </span>
+                        </p>
+                        <p class={generalInfoItemStyle}>  
+                          <UsersOutline class="text-gray-700" size="sm" />
+                          2eme Vice President: 
+                          <span class={generalInfoValueStyle} >
+                            {currentGeneralInfo["nom_vice_president2"]} 
+                          </span>
+                        </p>
 
-                            {#if currentGeneralInfo["Email mairie"]}
-                              <p class={generalInfoItemStyle} >
-                                <EnvelopeOutline class="text-gray-700"  size="sm" />
-                                Adresse email :  
-                                <span class={generalInfoValueStyle} >
-                                  <a href="mailto:{currentGeneralInfo["Email mairie"]}">{currentGeneralInfo["Email mairie"]}</a>
-                                </span> 
-                              </p>
-                            {/if}
-
-                            {#if currentGeneralInfo["Longitude"] &&  currentGeneralInfo["Latitude"] }
-                              <p class={generalInfoItemStyle} >
-                                <MapPinAltSolid class="text-gray-700"  size="sm" />
-                                Coordonnées(long, lat) :  
-                                <span class={generalInfoValueStyle}> {currentGeneralInfo["Longitude"]} ;  {currentGeneralInfo["Latitude"]}</span> 
-                              </p>
-                            {/if}
-
-                            {#if currentGeneralInfo["Site Web de la Mairie"] !==null}
-                              <p class={generalInfoItemStyle} >
-                                <LinkOutline size="sm" />
-                                Site web:
-                                <span class={"cursor-pointer "+generalInfoValueStyle} on:click={()=>{
-                                  window.open("https://"+currentGeneralInfo["Site Web de la Mairie"],"_blank");
-                                }} > {currentGeneralInfo["Site Web de la Mairie"]}</span>
-                              </p>
-                            {/if}
-                            <p class={generalInfoItemStyle}>
-                              <NewspapperOutline class="text-gray-700"  size="sm" />
-                              Date de création: 
-                              <span class={generalInfoValueStyle} >{currentGeneralInfo["Annee de creation"]}</span> 
-                            </p>
-
-                          </div>
-                          
-                          <div
-                            class="text-sm font-semibold text-gray-900 dark:text-white"
-                          >
-                            <Badge color="green" rounded class="px-3.5 py-0.5">
-                              {detailMandat.PARTI || ''}
-                            </Badge>
-                          </div>
-                        </div>
-                      </li>
-                    {/if}
-                  {/each}
+                      </div>
+                    </div>
+                  </li>
                 </ul>
               </Card> 
-            {:else if (showReg)}
-            <dl
-            class="max-w-screen-xl gap-8 p-2 mx-auto text-gray-900  dark:text-white sm:p-8"
-                >
-              <div class="flex items-center justify-center">
-                <dt class="ml-1 text-3xl font-bold poppins-medium w-full text-center">
-                  {formattedValue(currentGeneralInfo.superficy)|| ''}
-                </dt>
-                <dd class="text-gray-500 ml-1 dark:text-gray-400">km²</dd>
-              </div>
-            </dl>
-            <Card class="mb-2 !px-1 !max-w-xl  w-full">
-              <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-                <li class=" py-1 sm:py-2">
-                  <div class="flex items-start" >
-                    <div class="leading-3 flex-1 min-w-0 ms-4 mr-4">
-                      <p class={generalInfoItemStyle} >
-                        <UserOutline class="text-gray-700" size="sm" />
-                        President conseil: 
-                        <span class={generalInfoValueStyle} >{currentGeneralInfo["nom_president"]}</span>
-                      </p>
-                      <p class={generalInfoItemStyle}>  
-                        <UsersOutline class="text-gray-700" size="sm" />
-                        1er Vice President: 
-                        <span class={generalInfoValueStyle} >
-                          {currentGeneralInfo["nom_vice_president1"]} 
-                        </span>
-                      </p>
-                      <p class={generalInfoItemStyle}>  
-                        <UsersOutline class="text-gray-700" size="sm" />
-                        2eme Vice President: 
-                        <span class={generalInfoValueStyle} >
-                          {currentGeneralInfo["nom_vice_president2"]} 
-                        </span>
-                      </p>
+              {/if}
+            </Card>
+          </div>
+          <Tooltip triggeredBy="#stat" type="auto">
+            Statistique des ICSP dans le temps pour un territoire choisi
+          </Tooltip>
+          <div class="my-2 flex w-full justify-center text-base items-center gap-2">
+            <GridSolid size="sm" />
+            Stats des ICSP
+            <h5
+              id="stat"
+              class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
+            >
+              <InfoCircleSolid class="w-4 h-4 mt-4 me-2.5" />
+            </h5>
+          </div>
 
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </Card> 
-            {/if}
-          </Card>
-        </div>
-        <Tooltip triggeredBy="#stat" type="auto">
-          Statistique des ICSP dans le temps pour un territoire choisi
-        </Tooltip>
-        <div class="my-2 flex w-full justify-center text-base items-center gap-2">
-          <GridSolid size="sm" />
-          Stats des ICSP
-          <h5
-            id="stat"
-            class="inline-flex items-center mb-4 text-sm font-light text-gray-400 dark:text-gray-200"
-          >
-            <InfoCircleSolid class="w-4 h-4 mt-4 me-2.5" />
-          </h5>
-        </div>
-
-        <div class="p-4 lg:w-full sm:w-full flex justify-center mb-4">
-          {#await dataForLineChart then}
-            {#if dataForLineChart.data.data}
-              <Card class="!max-w-md w-full">
-                <div
-                  class="w-full flex justify-center items-center pb-4 mb-4 border-b border-gray-200 dark:border-gray-700"
-                >
-                  <div class="flex items-center">
-                    <div
-                      class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center me-3"
-                    >
-                      <ChartOutline class="w-6 h-6 text-gray-500 dark:text-gray-400" />
-                    </div>
-                    <div>
-                      <h5
-                        class="leading-none text-2xl font-bold text-gray-900 dark:text-white pb-1 poppins-medium"
+          <div class="p-4 lg:w-full sm:w-full flex justify-center mb-4">
+            {#await dataForLineChart then}
+              {#if dataForLineChart.data.data}
+                <Card class="!max-w-md w-full">
+                  <div
+                    class="w-full flex justify-center items-center pb-4 mb-4 border-b border-gray-200 dark:border-gray-700"
+                  >
+                    <div class="flex items-center">
+                      <div
+                        class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center me-3"
                       >
-                        Evolution de l'ICSP <br />
-                        <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                          <dt class="text-gray-500 dark:text-gray-400 text-sm font-normal me-1">
-                            Territoire : {dataForBarChart.geo}
-                          </dt>
-                        </p>
-                      </h5>
+                        <ChartOutline class="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      <div>
+                        <h5
+                          class="leading-none text-2xl font-bold text-gray-900 dark:text-white pb-1 poppins-medium"
+                        >
+                          Evolution de l'ICSP <br />
+                          <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            <dt class="text-gray-500 dark:text-gray-400 text-sm font-normal me-1">
+                              Territoire : {dataForBarChart.geo}
+                            </dt>
+                          </p>
+                        </h5>
+                      </div>
                     </div>
                   </div>
-                </div>
-                {#await optionForLineChart(dataForLineChart.data.label, dataForLineChart.data.data) then options}
-                  <Chart {options} />
-                {/await}
-                <div class=" text-black text-base font-semibold">Impôts Soumis à Péréquations (source : FEICOM) </div>
-              </Card>
-            {/if}
-          {/await}
-        </div>
-      </TabItem>
+                  {#await optionForLineChart(dataForLineChart.data.label, dataForLineChart.data.data) then options}
+                    <Chart {options} />
+                  {/await}
+                  <div class=" text-black text-base font-semibold">Impôts Soumis à Péréquations (source : FEICOM) </div>
+                </Card>
+              {/if}
+            {/await}
+          </div>
+        </TabItem>
+      {/if}
+      
       {#if allProject.length>0}
         <TabItem open class="card-tab-item w-full " id="projets">
           <div slot="title" class="flex w-full justify-center text-lg items-center gap-2">

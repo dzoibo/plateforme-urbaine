@@ -161,8 +161,9 @@ export function rechercheMulticriteresPourProjet(dataForMap, id_couche, scale, d
         // const champAnnee = "Année financement";
         // Vérifiez si le nom du département correspond
         let correspondRegion = false;
-        if(entry[scale]){
-            correspondRegion = entry[scale].includes(id_couche);
+        
+        if(entry['id_COMMUNE']){// pour chaque projet, que l'echelle soit regionale , departementale ou communale l'id sera toujours inclus dans l'id de la commune si la region ou le departement est concernée pas le projet donc on peut faire le check directement à ce niveau... 
+            correspondRegion = entry['id_COMMUNE'].includes(id_couche);
         }
 
         // Vérifiez si l'année correspond à la période spécifiée

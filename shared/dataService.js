@@ -10,15 +10,17 @@ export async function fetchData() {
     const projet = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=218804066&single=true&output=tsv';
     const theme='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=1383280162&single=true&output=tsv';
     const region='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=583846364&single=true&output=tsv';
-    const [communeData, projetData,mandatData,icspData,themeData,regionData] = await Promise.all([
+    const departement='https://docs.google.com/spreadsheets/d/e/2PACX-1vTYMzHPyArCNn2SlvIvQNYir_V1e7rLO7QbnAiTiDaAp7MPB3wCif4HXNBO37PnHA/pub?gid=218804066&single=true&output=csv';
+    const [communeData, projetData,mandatData,icspData,themeData,regionData,departementData] = await Promise.all([
         fetchDataFromSheet(commune),
         fetchDataFromSheet(projet),
         fetchDataFromSheet(mandat),
         fetchDataFromSheet(icsp),
         fetchDataFromSheet(theme),
         fetchDataFromSheet(region),
+        fetchDataFromSheet(departement),
     ]); 
-    return {communeData, projetData,mandatData,icspData,themeData,regionData};
+    return {communeData, projetData,mandatData,icspData,themeData,regionData,departementData};
 }
 
 // @ts-ignore
