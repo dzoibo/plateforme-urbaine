@@ -289,6 +289,7 @@
 
     clickedLayerInfo=e
     if (showCom) {
+      nom_commune=e.detail.features[0].properties['ref:COG'];
       detailsMandatCommune = findAllObjectsByAttribute(mandatData, 'id_COMMUNE', nom_commune);
       anneeDebutMandat = sortByDescendingOrder(detailsMandatCommune, 'DEBUT MANDAT');
       anneeFinMandat = sortByDescendingOrder(detailsMandatCommune, 'FIN MANDAT');
