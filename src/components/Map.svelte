@@ -5,8 +5,8 @@
     rangeValue,
     storeIndicateur,
     heightNavBar,
-    storeWrapper
-
+    storeWrapper,
+    storeBeneficiaire,
   } from '../../shared/store';
   import {
     findMinMax,
@@ -237,8 +237,9 @@
   sidebarId = document.getElementById('sidebar6');
 
   // Reactivité
+  let previousSelectedCommune=[]
   $: {
-    let selectedCommune = [];
+    let selectedCommune = null;
     if (showCom) {
       scale = 'id_COMMUNE';
       toggleLayer('com');
@@ -259,7 +260,10 @@
             selectedCommune = storeIndicateurForMap.find(
                 (item) => item.indicateur === 'beneficiaire'
               ).data;
-            updateGetBox(selectedCommune);
+            if(selectedCommune!==previousSelectedCommune){
+              updateGetBox(selectedCommune);
+              previousSelectedCommune=selectedCommune;
+            }
           }
       } else {
         // Cas où aucune condition n'est satisfaite, donc selectedCommune est un tableau vide
@@ -385,6 +389,7 @@
   */
   function clearFilterBeforeToggleZoom(layer){
     if(getbbox!==[] && getbbox.length>0){
+      storeBeneficiaire.set(false);
       updateGetBox('');
       setTimeout(() => {
         toggleLayer(layer);

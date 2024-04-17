@@ -14,21 +14,13 @@
     rangeValue,
     storeIndicateur,
     heightNavBar,
-    accordMode,
-    storeIndicateurICSP,
-    storeCommune,
-    storeAccordsBeneficiaire,
-    storeIcspCommune,
+    storeBeneficiaire,
     storeWrapper
   } from '../../shared/store.js';
   import { fetchData } from '../../shared/dataService.js';
 
   import {
     Navbar,
-    NavBrand,
-    NavLi,
-    NavUl,
-    NavHamburger,
     Sidebar,
     SidebarGroup,
     SidebarItem,
@@ -43,25 +35,12 @@
     Range,
     Radio,
     Label,
-    Tabs,
-    TabItem,
     Spinner
   } from 'flowbite-svelte';
   import {
-    FolderOutline,
-    SwatchbookOutline,
-    DollarOutline,
-    UsersGroupOutline,
     CashOutline,
-    LandmarkOutline,
     ChevronDownSolid,
-    BuildingOutline,
-    CheckPlusCircleOutline,
-    CalendarMonthOutline,
-    RectangleListOutline,
-    UserOutline,
-    UsersOutline,
-    OrdoredListOutline
+    BuildingOutline
   } from 'flowbite-svelte-icons';
   import { sineIn } from 'svelte/easing';
 
@@ -427,6 +406,16 @@
     storeWrapper.subscribe(($wrapper) => {
       drawerHidden = $wrapper;
     });
+    storeBeneficiaire.subscribe(($value: any)=>{
+      if($value===false && filterIndicators.beneficiaire){ 
+        const index=arrayAllIndicateurs.findIndex((item: any) => item.indicateur === beneficiaireIndicateur);
+        arrayAllIndicateurs[index].data.forEach((beneficiaire)=>{
+          closeDiv(replaceKey(beneficiaire,valeursBeneficiaire),dropdownSelectionBeneficiaireIndicateur,valeursBeneficiaire)
+        });
+        arrayAllIndicateurs[index].data=[];
+      }
+      storeBeneficiaire.set(true);
+    });
   });
 
   const toggleDrawer = () => {
@@ -625,12 +614,17 @@
 
   // Fonction pour réinitialiser les filtres et vider les dropdowns
   function resetFilters() {
+    if(filterIndicators.beneficiaire){ 
+      const index=arrayAllIndicateurs.findIndex((item: any) => item.indicateur === beneficiaireIndicateur);
+      arrayAllIndicateurs[index].data.forEach((beneficiaire)=>{
+        closeDiv(replaceKey(beneficiaire,valeursBeneficiaire),dropdownSelectionBeneficiaireIndicateur,valeursBeneficiaire)
+      });
+    }
     arrayAllIndicateurs=[];
     valeursProjet.forEach((item) => (item.checked = false));
     valeursTheme.forEach((item) => (item.checked = false));
     valeursInstitution.forEach((item) => (item.checked = false));
     valeursBailleur.forEach((item) => (item.checked = false));
-    valeursBeneficiaire.forEach((item) => (item.checked = false));
     valeursRegion.forEach((item) => (item.checked = false));
     clearIndicator();
   }
