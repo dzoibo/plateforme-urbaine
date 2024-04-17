@@ -384,7 +384,7 @@
    * when a commune is selected, we need to remove zoom before being able to toggle the layer
   */
   function clearFilterBeforeToggleZoom(layer){
-    if(getbbox!==[]){
+    if(getbbox!==[] && getbbox.length>0){
       updateGetBox('');
       setTimeout(() => {
         toggleLayer(layer);
@@ -394,8 +394,60 @@
     }
   } 
 
+  let manualZooming=true;
+  function toggleLayer(layer,isAuto) {
+
+    if(isAuto){// this paramter is to make sure that the zoom has been trigerred manualy
+      manualZooming=false;
+    }else{
+      manualZooming=true;
+    }
+    showReg = layer === 'reg' ? true : false;
+    showDep = layer === 'dep' ? true : false;
+    showCom = layer === 'com' ? true : false;
+
+    if(map && getbbox.length===0 && !isAuto){
+      if(showReg){
+        map.zoomTo(5,{
+          duration: 1000
+        })
+      }
+      if(showDep){
+        map.zoomTo(6,{
+          duration: 1000
+        })
+      } 
+      if(showCom) {
+        map.zoomTo(7, {
+          duration: 1000,
+        });
+      }
+    }
+    setTimeout(() => {
+      manualZooming=false;
+    },1100);
+    const buttons = document.querySelectorAll('.maplibregl-ctrl-icon');
+    buttons.forEach((button) => {
+      button.classList.remove('active');
+    });
+    // Ajoutez la classe "active" uniquement au bouton cliqué
+    const button = document.querySelector(`#${layer}`);
+    if (button) {
+      button.classList.add('active');
+    }
+    // Pour forcer l'actualisation des Labels REG et DEP
+    if (map) {
+      if (!getOverallBbox) {
+        map.setZoom(map.getZoom() + 0.0000001);
+      }
+    }
+  }
+
   //automalticaly change the scale
   function toggleLayerOnZoom(){
+    if(manualZooming){
+      return;
+    }
     const currentTime = Date.now();
     let tempLayer=layer;
     if(currentZoom>previousZoom){
@@ -416,47 +468,15 @@
     }else{
       layer=tempLayer;
       lastLayerUpdateTime=Date.now();
-      toggleLayer(layer);
+      toggleLayer(layer,true);
       
       previousZoom=currentZoom;
     }
     
   }
 
-  function toggleLayer(layer) {
-    showReg = layer === 'reg' ? true : false;
-    showDep = layer === 'dep' ? true : false;
-    showCom = layer === 'com' ? true : false;
-    
-    // Supprimez la classe "active" de tous les boutons
-    const buttons = document.querySelectorAll('.maplibregl-ctrl-icon');
-    buttons.forEach((button) => {
-      button.classList.remove('active');
-    });
+  
 
-    // Ajoutez la classe "active" uniquement au bouton cliqué
-    const button = document.querySelector(`#${layer}`);
-    if (button) {
-      button.classList.add('active');
-    }
-
-    // Pour forcer l'actualisation des Labels REG et DEP
-    if (map) {
-      if (!getOverallBbox) {
-        map.setZoom(map.getZoom() + 0.0000001);
-      }
-    }
-  }
-
-  //changer l'affichage ISP par ICSP
-  function changeItemToDisplay(data){
-    let formalizedData=[];
-    for (let i=0;i<data.length; i++){
-      data[i].x='ICSP'+(1+i);
-      formalizedData.push(data[i]);
-    }
-    return formalizedData
-  }
 
   /* function displayItemValue(value) {
     if (value == null) {
@@ -909,7 +929,7 @@
       <FillLayer paint={{ 'fill-color': 'black', 'fill-opacity': 0.6 }}/>
     </GeoJSON>
 
-    {#if currentZoom>=8 && showCom}
+    {#if currentZoom>=9 && showCom}
       <GeoJSON data="/data/projet/projet_line.geojson">    
         <LineLayer 
           paint={{

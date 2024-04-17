@@ -254,6 +254,8 @@
   let closeBtnStyle = 'absolute focus:outline-none whitespace-normal focus:ring-2 p-1.5  hover:bg-red-500 ms-auto inline-flex items-center justify-center w-6 !h-6 font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2';
   let selectedItemStyle="inline-flex relative px-5 py-2.5 m-1 text-sm font-medium text-center text-sm text-white bg-[#0095DC] rounded-lg";
   let appuiBeneficiairesItems: never[] = [];
+  let regionStyle='w-6 h-6 -ml-0.5';
+  
   let appuiInstitutionnelItems: any[] = [];
   let appuiBailleursItems: any[] = [];
   let projetsUnique:
@@ -840,7 +842,8 @@
             <SidebarGroup class={cardForSideBar}>
               <SidebarDropdownWrapper  label="Selon un bénéficiaire">
                 <svelte:fragment slot="icon">
-                  <UsersGroupOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"/>
+                  
+                  <img src={'./benef.png'} class={regionStyle} alt="region">
                   {#if filterIndicators.beneficiaire && !filterCheckedAll.beneficiaire}
                     <div class={filterIndicatorStyle} ></div>
                   {/if}
