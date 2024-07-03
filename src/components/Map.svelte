@@ -822,7 +822,11 @@
                   <Listgroup class="border-0 dark:!bg-transparent ">
                     <div class="flex items-center space-x-1 rtl:space-x-reverse">
                       <div class="flex-1 min-w-0">
+<<<<<<< HEAD
                         {#if (projet['Acronyme']!== undefined && projet['Acronyme']!==null)}
+=======
+                        {#if (projet['Acronyme']!== undefined && projet['Acronyme'].length>0)}
+>>>>>>> 6cb6c494f09337b2dca79e98e6b59342742fe8cc
                           <div>
                             <span class="text-sm font-bold text-gray-900 dark:text-white">
                               Acronyme :
