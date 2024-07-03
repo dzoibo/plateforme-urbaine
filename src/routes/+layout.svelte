@@ -721,7 +721,7 @@
                             )}> 
                             <div>
                               {projet.key} 
-                              <span class="font-semibold text-sm" >{#if projet.acronyme !== null} {'('+projet.acronyme+')'} {/if} </span>
+                              <span class="font-semibold text-sm" >{#if (projet.acronyme !== undefined && projet.acronyme !== null)} {'('+projet.acronyme+')'} {/if} </span>
                             </div>
                         </Checkbox>
                       </li>

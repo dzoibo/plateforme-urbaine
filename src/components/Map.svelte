@@ -822,13 +822,15 @@
                   <Listgroup class="border-0 dark:!bg-transparent ">
                     <div class="flex items-center space-x-1 rtl:space-x-reverse">
                       <div class="flex-1 min-w-0">
-
-                        <div>
-                          <span class="text-sm font-bold text-gray-900 dark:text-white">
-                            Acronyme :
-                          </span>
-                          <span class="text-[13px] font-medium">{projet['Acronyme']}</span>
-                        </div>
+                        {#if (projet['Acronyme']!== undefined && projet['Acronyme']!==null)}
+                          <div>
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">
+                              Acronyme :
+                            </span>
+                            <span class="text-[13px] font-medium">{projet['Acronyme']}</span>
+                          </div>
+                        {/if}
+                        
 
                         <div>
                           <span class="text-sm font-bold text-gray-900 dark:text-white">
